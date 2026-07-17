@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  telephone String?
+  role      String   @default("client")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entreprises Entreprise[]
+}
+
+enum CategorieEntreprise {
+  entreprise_privee
+  administration_publique
+  banque
+  assurance
+  hotel
+  compagnie_aerienne
+  ong
+  ambassade
+  ecole
+  universite
+  clinique
+  cabinet_medical
+  cabinet_avocat
+  notaire
+  agence_immobiliere
+  entreprise_miniere
+  societe_petroliere
+  btp
+  securite_privee
+  evenementiel
+  mosquee
+  association
+  comite_entreprise
+  particulier_vip
+}
+
+enum StatutPipeline {
+  prospect_identifie
+  premier_contact
+  visite_effectuee
+  besoin_identifie
+  devis_envoye
+  relance_1
+  relance_2
+  negociation
+  contrat_signe
+  client_actif
+  client_fidele
+  perdu
+}
+
+enum TypeBesoin {
+  navette_entreprise
+  navette_aeroport
+  billetterie
+  voyages_affaires
+  tourisme
+  sejours
+  visa
+  omra
+  hajj
+  transport_evenementiel
+  location_vehicule
+  autres
+}
+
+model Entreprise {
+  id                String              @id @default(cuid())
+  nom               String
+  nomCommercial     String?
+  rccm              String?
+  categorie         CategorieEntreprise
+  secteurActivite   String?
+  effectif          Int?
+  dateCreation      DateTime?
+  siteInternet      String?
+  facebook          String?
+  linkedin          String?
+  instagram         String?
+
+  pays              String   @default("Côte d'Ivoire")
+  ville             String
+  commune           String
+  quartier          String?
+  rue               String?
+  immeuble          String?
+  latitude          Float?
+  longitude         Float?
+  secteurCommercial String?
+  zoneCommerciale   String?
+
+  telephoneFixe     String?
+  whatsapp          String?
+  emailPrincipal    String?
+  emailSecondaire   String?
+  horaires          String?
+  observations      String?  @db.Text
+
+  statutPipeline    StatutPipeline @default(prospect_identifie)
+  probabiliteVente  Int?
+  montantEstime     Decimal?       @db.Decimal(12, 0)
+
+  commercialId      String?
+  commercial        User?    @relation(fields: [commercialId], references: [id])
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  contacts          Contact[]
+  besoins           BesoinIdentifie[]
+}
+
+model Contact {
+  id               String     @id @default(cuid())
+  entrepriseId     String
+  entreprise       Entreprise @relation(fields: [entrepriseId], references: [id], onDelete: Cascade)
+
+  nom              String
+  prenom           String
+  fonction         String?
+  telephone        String?
+  whatsapp         String?
+  email            String?
+  dateAnniversaire DateTime?
+  centreInteret    String?
+  estDecideur      Boolean  @default(false)
+  estInfluenceur   Boolean  @default(false)
+  estUtilisateur   Boolean  @default(false)
+
+  createdAt        DateTime @default(now())
+}
+
+model BesoinIdentifie {
+  id           String     @id @default(cuid())
+  entrepriseId String
+  entreprise   Entreprise @relation(fields: [entrepriseId], references: [id], onDelete: Cascade)
+  type         TypeBesoin
+  details      String?    @db.Text
+  createdAt    DateTime   @default(now())
+}
