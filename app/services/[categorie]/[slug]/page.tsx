@@ -19,6 +19,7 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
 
   const tagsList = item.tags ? item.tags.split(",") : [];
   const message = `Bonjour, je souhaite réserver : ${item.title}`;
+  const isHajj = category.slug === "hajj";
 
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
@@ -54,8 +55,30 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
       <section className="mx-auto max-w-3xl px-6 py-10 sm:px-10">
         {item.sessions.length === 0 && <p className="text-2xl font-semibold text-[#0B3D2E]">{item.price}</p>}
 
+        {isHajj && (
+          <div className="mt-6 rounded-xl border border-[#B7962F]/40 bg-[#B7962F]/10 p-5">
+            <p className="text-sm font-semibold text-[#0B3D2E]">Inscriptions bientôt ouvertes</p>
+            <p className="mt-1 text-sm text-[#0B3D2E]/70">
+              Les dates de session précises et les tarifs détaillés du Hajj 2027 seront communiqués prochainement.
+              Départ prévu du 14 au 19 mai 2027. Contactez-nous dès maintenant pour être parmi les premiers informés.
+            </p>
+          </div>
+        )}
+
+        {item.description ? (
+          <p className="mt-6 text-sm leading-relaxed text-[#0B3D2E]/80 sm:text-base">{item.description}</p>
+        ) : (
+          tagsList.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {tagsList.map((t) => (
+                <span key={t} className="rounded-full border border-[#0B3D2E]/15 bg-white px-3 py-1.5 text-xs text-[#0B3D2E]/80 sm:text-sm">{t}</span>
+              ))}
+            </div>
+          )
+        )}
+
         {item.sessions.length > 0 && (
-          <div className="flex flex-col gap-6">
+          <div className="mt-6 flex flex-col gap-6">
             {item.sessions.map((s) => (
               <div key={s.id} className="overflow-hidden rounded-xl border border-[#0B3D2E]/10 bg-white">
                 <div className="grid gap-0 sm:grid-cols-[minmax(0,260px)_1fr]">
@@ -80,14 +103,6 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {tagsList.length > 0 && (
-          <div className="mt-6 flex flex-wrap gap-2">
-            {tagsList.map((t) => (
-              <span key={t} className="rounded-full border border-[#0B3D2E]/15 bg-white px-3 py-1.5 text-xs text-[#0B3D2E]/80 sm:text-sm">{t}</span>
             ))}
           </div>
         )}

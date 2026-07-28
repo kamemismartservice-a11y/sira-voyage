@@ -150,7 +150,9 @@ model BesoinIdentifie {
   type         TypeBesoin
   details      String?    @db.Text
   createdAt    DateTime   @default(now())
-}model ServiceCategory {
+}
+
+model ServiceCategory {
   id    String        @id @default(cuid())
   slug  String        @unique
   label String
@@ -165,6 +167,7 @@ model ServiceItem {
   slug                 String
   title                String
   subtitle             String?
+  description          String?
   image                String?
   icon                 String?
   badge                String?
