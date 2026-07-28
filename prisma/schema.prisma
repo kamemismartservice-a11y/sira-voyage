@@ -150,4 +150,44 @@ model BesoinIdentifie {
   type         TypeBesoin
   details      String?    @db.Text
   createdAt    DateTime   @default(now())
+}model ServiceCategory {
+  id    String        @id @default(cuid())
+  slug  String        @unique
+  label String
+  icon  String
+  items ServiceItem[]
+}
+
+model ServiceItem {
+  id                   String   @id @default(cuid())
+  categoryId           String
+  category             ServiceCategory @relation(fields: [categoryId], references: [id])
+  slug                 String
+  title                String
+  subtitle             String?
+  image                String?
+  icon                 String?
+  badge                String?
+  price                String
+  priceGridQuad        String?
+  priceGridTriple      String?
+  priceGridDouble      String?
+  priceGridIndividuelle String?
+  tags                 String?
+  sessions             OmraSession[]
+
+  @@unique([categoryId, slug])
+}
+
+model OmraSession {
+  id           String      @id @default(cuid())
+  itemId       String
+  item         ServiceItem @relation(fields: [itemId], references: [id])
+  periode      String
+  duree        String
+  image        String
+  quad         String?
+  triple       String
+  double       String
+  individuelle String
 }
