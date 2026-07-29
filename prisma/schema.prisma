@@ -194,3 +194,17 @@ model OmraSession {
   double       String
   individuelle String
 }
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String?
+  coverImage  String?
+  videoUrl    String?
+  content     String   @db.Text
+  published   Boolean  @default(true)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

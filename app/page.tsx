@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const destinations = [
   { src: "/images/dest-medine.png", label: "Médine", sub: "La ville du Prophète" },
@@ -13,10 +15,9 @@ export default function Home() {
       <Image src="/images/hero-mecque.png" alt="La Mecque" fill priority className="object-cover object-center" />
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(4,23,18,0.75) 0%, rgba(6,37,27,0.55) 45%, rgba(11,61,46,0.92) 100%)" }} />
 
-      <header className="relative z-10 flex items-center justify-between px-6 py-6 sm:px-10">
-        <span className="font-[family-name:var(--font-garamond)] text-xl tracking-wide text-[#F8F6F0] sm:text-2xl">Sira Voyage</span>
-        <a href="#contact" className="hidden text-sm tracking-wide text-[#F8F6F0]/80 transition-colors hover:text-[#B7962F] sm:inline-block">Nous contacter</a>
-      </header>
+      <div className="relative z-10">
+        <Header />
+      </div>
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 py-12 text-center sm:px-10">
         <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#B7962F]/40 bg-[#B7962F]/10 px-4 py-1.5 text-xs tracking-wide text-[#F8F6F0]/90 backdrop-blur-sm sm:text-sm">
@@ -37,7 +38,7 @@ export default function Home() {
         <p className="mt-6 max-w-xl text-base leading-relaxed text-[#F8F6F0]/80 sm:text-lg">Départs Côte d&rsquo;Ivoire et Europe, accompagnement complet et assistance 24h/24, du premier devis jusqu&rsquo;à votre retour.</p>
 
         <div className="mt-10 flex w-full max-w-md flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
-          <a href="/offres/omra" className="inline-flex h-12 whitespace-nowrap items-center justify-center rounded-full bg-[#B7962F] px-7 text-sm font-medium tracking-wide text-[#0B3D2E] transition-colors hover:bg-[#CBA83E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F8F6F0] sm:text-base">Réserver une Omra</a>
+          <a href="/services" className="inline-flex h-12 whitespace-nowrap items-center justify-center rounded-full bg-[#B7962F] px-7 text-sm font-medium tracking-wide text-[#0B3D2E] transition-colors hover:bg-[#CBA83E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F8F6F0] sm:text-base">Réserver une Omra</a>
           <a href="/services" className="inline-flex h-12 whitespace-nowrap items-center justify-center rounded-full border border-[#F8F6F0]/50 bg-[#0B3D2E]/20 px-7 text-sm font-medium tracking-wide text-[#F8F6F0] backdrop-blur-sm transition-colors hover:border-[#F8F6F0] hover:bg-[#F8F6F0]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F8F6F0] sm:text-base">Voir nos services</a>
           <a href="https://wa.me/2250545516269" target="_blank" rel="noopener noreferrer" className="inline-flex h-12 whitespace-nowrap items-center justify-center gap-2 rounded-full px-7 text-sm font-medium tracking-wide text-[#F8F6F0]/90 transition-colors hover:text-[#B7962F] sm:text-base">
             <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M12.01 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.36 5.07L2 22l5.06-1.33A9.94 9.94 0 0012.01 22C17.53 22 22 17.52 22 12S17.53 2 12.01 2zm5.6 14.14c-.24.68-1.38 1.3-1.9 1.36-.5.06-1.02.28-3.42-.72-2.9-1.2-4.76-4.14-4.9-4.33-.14-.19-1.17-1.56-1.17-2.97 0-1.42.74-2.11 1-2.4.26-.29.56-.36.75-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.82 2 .9 2.14.07.15.12.32.02.51-.1.19-.15.31-.3.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.76 1.25 1.63 2.02 1.12.99 2.07 1.3 2.36 1.45.29.15.46.13.63-.08.17-.2.72-.84.92-1.13.19-.29.38-.24.63-.15.26.1 1.65.78 1.93.92.29.15.48.22.55.34.07.13.07.75-.17 1.43z" /></svg>
@@ -65,7 +66,7 @@ export default function Home() {
         <p className="mb-8 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS DESTINATIONS</p>
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
           {destinations.map((d) => (
-            <a key={d.label} href="#" className="group relative aspect-[3/4] overflow-hidden rounded-2xl">
+            <a key={d.label} href="/services" className="group relative aspect-[3/4] overflow-hidden rounded-2xl">
               <Image src={d.src} alt={d.label} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
               <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#041712] via-transparent to-transparent opacity-90" />
               <div className="absolute inset-x-0 bottom-0 p-4">
@@ -78,6 +79,8 @@ export default function Home() {
       </section>
 
       <div aria-hidden className="relative z-10 h-10 w-full sm:h-12" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23B7962F' stroke-width='1'%3E%3Cpath d='M32 4 L40 24 L60 24 L44 36 L50 56 L32 44 L14 56 L20 36 L4 24 L24 24 Z'/%3E%3C/g%3E%3C/svg%3E\")", backgroundRepeat: "repeat-x", backgroundSize: "48px 48px", backgroundPosition: "center", opacity: 0.35 }} />
+
+      <Footer />
     </main>
   );
 }
