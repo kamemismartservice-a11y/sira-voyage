@@ -1,15 +1,33 @@
 import Image from "next/image";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { prisma } from "@/lib/prisma";
 
-const destinations = [
-  { src: "/images/dest-medine.png", label: "Médine", sub: "La ville du Prophète" },
-  { src: "/images/dest-dubai.png", label: "Dubaï", sub: "Luxe et modernité" },
-  { src: "/images/dest-turquie.png", label: "Turquie", sub: "Entre deux continents" },
-  { src: "/images/dest-cote-divoire.png", label: "Côte d'Ivoire", sub: "Vos circuits sur mesure" },
-];
+export default async function Home() {
+  const categories = await prisma.serviceCategory.findMany({
+    include: { items: true },
+    orderBy: { id: "asc" },
+  });
 
-export default function Home() {
+  const order = ["omra", "hajj", "billetterie", "visa", "navettes", "tourisme"];
+  const sorted = [...categories].sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug));
+
+  const highlights = sorted
+    .map((category) => {
+      const item = category.items.find((i) => i.image) || category.items[0];
+      if (!item) return null;
+      return {
+        key: item.id,
+        href: "/services/" + category.slug + "/" + item.slug,
+        image: item.image,
+        icon: item.icon,
+        label: item.title,
+        sub: item.subtitle || category.label,
+      };
+    })
+    .filter((d): d is NonNullable<typeof d> => d !== null);
+
   return (
     <main className="relative flex min-h-[100svh] flex-col overflow-hidden bg-[#0B3D2E]">
       <Image src="/images/hero-mecque.png" alt="La Mecque" fill priority className="object-cover object-center" />
@@ -62,18 +80,28 @@ export default function Home() {
         </div>
       </div>
 
-      <section className="relative z-10 bg-[#0B3D2E] px-6 py-16 sm:px-10">
-        <p className="mb-8 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS DESTINATIONS</p>
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-          {destinations.map((d) => (
-            <a key={d.label} href="/services" className="group relative aspect-[3/4] overflow-hidden rounded-2xl">
-              <Image src={d.src} alt={d.label} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+      <section className="relative z-10 bg-[#0B3D2E] py-16">
+        <p className="mb-2 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS DESTINATIONS</p>
+        <p className="mb-8 text-center text-xs text-[#F8F6F0]/50">Faites glisser pour découvrir tous nos services →</p>
+
+        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 sm:gap-6 sm:px-10 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
+          {highlights.map((d) => (
+            <Link
+              key={d.key}
+              href={d.href}
+              className="group relative aspect-[3/4] w-[68vw] flex-none snap-start overflow-hidden rounded-2xl sm:w-[280px]"
+            >
+              {d.image ? (
+                <Image src={d.image} alt={d.label} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[#0B3D2E] text-6xl">{d.icon}</div>
+              )}
               <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#041712] via-transparent to-transparent opacity-90" />
               <div className="absolute inset-x-0 bottom-0 p-4">
                 <p className="font-[family-name:var(--font-garamond)] text-lg text-[#F8F6F0] sm:text-xl">{d.label}</p>
                 <p className="text-xs text-[#F8F6F0]/70">{d.sub}</p>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </section>

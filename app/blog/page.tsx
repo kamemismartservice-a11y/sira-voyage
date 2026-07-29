@@ -4,6 +4,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 
+export const metadata = {
+  title: "Blog — Sira Voyages | Actualités Omra, Hajj et voyages",
+  description: "Conseils, actualités et guides pratiques pour préparer votre Omra, votre Hajj et vos voyages avec Sira Voyages.",
+};
+
 export default async function Blog() {
   const posts = await prisma.blogPost.findMany({
     where: { published: true },

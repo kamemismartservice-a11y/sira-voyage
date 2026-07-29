@@ -1,6 +1,11 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+export const metadata = {
+  title: "Contact — Sira Voyages | Omra, Hajj, billetterie à Abidjan",
+  description: "Contactez Sira Voyages à Cocody Riviera 3, Abidjan. WhatsApp, téléphone et email pour vos réservations Omra, Hajj, billetterie et voyages.",
+};
+
 export default function Contact() {
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">

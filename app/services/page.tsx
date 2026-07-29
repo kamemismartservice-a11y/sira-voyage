@@ -4,6 +4,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 
+export const metadata = {
+  title: "Nos Services — Sira Voyages | Omra, Hajj, Billetterie, Visa, Navette VIP",
+  description: "Découvrez tous nos services : Omra, Hajj, billetterie aérienne, assistance visa, navette VIP et circuits touristiques en Côte d'Ivoire.",
+};
+
 export default async function Services() {
   const categories = await prisma.serviceCategory.findMany({
     include: { items: true },

@@ -1,6 +1,11 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+export const metadata = {
+  title: "À propos — Sira Voyages | 13 ans d'expérience, 10 000+ pèlerins",
+  description: "Sira Voyages, agence de voyage et pèlerinage à Abidjan. Omra, Hajj, billetterie, visa, navette VIP et tourisme, avec 13 ans d'expérience.",
+};
+
 export default function APropos() {
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
