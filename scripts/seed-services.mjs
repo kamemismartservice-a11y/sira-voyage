@@ -68,33 +68,33 @@ const data = {
   hajj: {
     label: "Hajj", icon: "🕌",
     items: [
-      { slug: "hajj-2027", title: "Hajj 2027", subtitle: "14 – 19 mai 2027", image: "/images/hero-mecque.png", badge: "HAJJ 2027", price: "à partir de 5 500 000 FCFA", tags: "Ihram,Tawaf autour de la Kaaba,Sa'i entre Safa et Marwa,Station à Arafat,Nuit à Muzdalifah,Séjour à Mina,Lapidation des stèles (Jamarat),Sacrifice rituel,Tawaf d'adieu" },
+      { slug: "hajj-2027", title: "Hajj 2027", subtitle: "14 – 19 mai 2027", image: "/images/services/hajj-hero.jpg", badge: "HAJJ 2027", price: "à partir de 5 500 000 FCFA", tags: "Ihram,Tawaf autour de la Kaaba,Sa'i entre Safa et Marwa,Station à Arafat,Nuit à Muzdalifah,Séjour à Mina,Lapidation des stèles (Jamarat),Sacrifice rituel,Tawaf d'adieu" },
     ],
   },
   billetterie: {
     label: "Billetterie", icon: "✈️",
     items: [
-      { slug: "vols-nationaux-internationaux", title: "Billetterie", subtitle: "Vols nationaux et internationaux", icon: "✈️", price: "Émission sous 24 à 48h", tags: "Ethiopian Airlines,Qatar Airways,Air Côte d'Ivoire,Turkish Airlines" },
+      { slug: "vols-nationaux-internationaux", title: "Billetterie", subtitle: "Vols nationaux et internationaux", image: "/images/services/billetterie-hero.jpg", icon: "✈️", price: "Émission sous 24 à 48h", tags: "Ethiopian Airlines,Qatar Airways,Air Côte d'Ivoire,Turkish Airlines" },
     ],
   },
   visa: {
     label: "Assistance Visa", icon: "🛂",
     items: [
-      { slug: "assistance-visa", title: "Assistance Visa", subtitle: "De A à Z, nous gérons tout", icon: "🛂", price: "à partir de 15 000 FCFA / dossier", tags: "Arabie Saoudite (Omra/Hajj),Émirats Arabes Unis,Espace Schengen,États-Unis & Canada,Royaume-Uni" },
+      { slug: "assistance-visa", title: "Assistance Visa", subtitle: "De A à Z, nous gérons tout", image: "/images/services/visa-hero.jpg", icon: "🛂", price: "à partir de 15 000 FCFA / dossier", tags: "Arabie Saoudite (Omra/Hajj),Émirats Arabes Unis,Espace Schengen,États-Unis & Canada,Royaume-Uni" },
     ],
   },
   navettes: {
     label: "Navettes VIP", icon: "🚐",
     items: [
-      { slug: "navette-vip", title: "Navettes VIP", subtitle: "Minibus 11 places, chauffeur professionnel", icon: "🚐", price: "à partir de 30 000 FCFA", tags: "Transfert aéroport,Journée complète (8h),Demi-journée (4h),Événement VIP,Excursion Assinie,Partenariat agences & hôtels" },
+      { slug: "navette-vip", title: "Navettes VIP", subtitle: "Minibus 11 places, chauffeur professionnel", image: "/images/services/navette-hero.jpg", icon: "🚐", price: "à partir de 30 000 FCFA", tags: "Transfert aéroport,Journée complète (8h),Demi-journée (4h),Événement VIP,Excursion Assinie,Partenariat agences & hôtels" },
     ],
   },
   tourisme: {
     label: "Tourisme CI", icon: "🌍",
     items: [
-      { slug: "sud-ouest", title: "Sud-Ouest ivoirien — Le Grand Circuit", subtitle: "7 jours / 6 nuits", image: "/images/dest-cote-divoire.png", price: "390 000 FCFA / personne", tags: "San Pedro,Grand-Béréby,Sassandra,Monogaga" },
-      { slug: "excursions-abidjan", title: "Excursions près d'Abidjan", subtitle: "1 jour (sauf mention)", price: "20 000 à 95 000 FCFA", tags: "Grand-Bassam — 35 000 F,Assinie & Assouindé — 45 000 F,Yamoussoukro — 55 000 F,Azagny — 50 000 F,Jacqueville — 30 000 F,Aboudé-Mandéké & La Mé — 40 000 F,Bingerville & Jardin Botanique (½j) — 20 000 F,Divo (2j/1n) — 95 000 F" },
-      { slug: "decouverte", title: "Circuits découverte", subtitle: "3 jours / 2 nuits", price: "195 000 à 210 000 FCFA", tags: "Man — 195 000 F,Korhogo — 210 000 F" },
+      { slug: "sud-ouest", title: "Sud-Ouest ivoirien — Le Grand Circuit", subtitle: "7 jours / 6 nuits", image: "/images/services/tourisme-sud-ouest.jpg", price: "390 000 FCFA / personne", tags: "San Pedro,Grand-Béréby,Sassandra,Monogaga" },
+      { slug: "excursions-abidjan", title: "Excursions près d'Abidjan", subtitle: "1 jour (sauf mention)", image: "/images/services/tourisme-excursionsabidjan.jpg", price: "20 000 à 95 000 FCFA", tags: "Grand-Bassam — 35 000 F,Assinie & Assouindé — 45 000 F,Yamoussoukro — 55 000 F,Azagny — 50 000 F,Jacqueville — 30 000 F,Aboudé-Mandéké & La Mé — 40 000 F,Bingerville & Jardin Botanique (½j) — 20 000 F,Divo (2j/1n) — 95 000 F" },
+      { slug: "decouverte", title: "Circuits découverte", subtitle: "3 jours / 2 nuits", image: "/images/services/tourisme-decouverte.jpg", price: "195 000 à 210 000 FCFA", tags: "Man — 195 000 F,Korhogo — 210 000 F" },
     ],
   },
 };
