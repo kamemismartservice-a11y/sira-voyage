@@ -1,80 +1,48 @@
-import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 
-function getEmbedUrl(url: string) {
-  if (url.includes("youtube.com") || url.includes("youtu.be")) {
-    const idMatch = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    const id = idMatch ? idMatch[1] : "";
-    return "https://www.youtube.com/embed/" + id;
-  }
-  return url;
-}
-
-export default async function BlogPostDetail({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-
-  const post = await prisma.blogPost.findUnique({ where: { slug } });
-  if (!post || !post.published) notFound();
-
-  const blocks = post.content.split("\n").filter((p) => p.trim() !== "");
+export default async function Blog() {
+  const posts = await prisma.blogPost.findMany({
+    where: { published: true },
+    orderBy: { publishedAt: "desc" },
+  });
 
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
       <Header />
 
-      {post.coverImage && !post.videoUrl && (
-        <div className="relative h-64 w-full sm:h-96">
-          <Image src={post.coverImage} alt={post.title} fill className="object-cover" />
-        </div>
-      )}
+      <section className="px-6 py-14 text-center sm:px-10">
+        <p className="mb-4 text-xs font-semibold tracking-[0.35em] text-[#B7962F]">ACTUALITÉS</p>
+        <h1 className="mx-auto max-w-2xl font-[family-name:var(--font-garamond)] text-4xl leading-tight text-[#0B3D2E] sm:text-5xl">Notre Blog</h1>
+      </section>
 
-      <article className="mx-auto max-w-2xl px-6 py-12 sm:px-10">
-        <p className="text-xs text-[#0B3D2E]/50">
-          {new Date(post.publishedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-garamond)] text-3xl leading-tight text-[#0B3D2E] sm:text-4xl">{post.title}</h1>
-
-        {post.videoUrl && (
-          <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-xl">
-            <iframe
-              src={getEmbedUrl(post.videoUrl)}
-              className="absolute inset-0 h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+      <section className="mx-auto max-w-6xl px-6 pb-16 sm:px-10">
+        {posts.length === 0 ? (
+          <p className="text-center text-sm text-[#0B3D2E]/60">Aucun article publié pour le moment.</p>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <Link key={post.id} href={"/blog/" + post.slug} className="group overflow-hidden rounded-xl border border-[#0B3D2E]/10 bg-white">
+                {post.coverImage && (
+                  <div className="relative h-44 w-full">
+                    <Image src={post.coverImage} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                )}
+                <div className="p-5">
+                  <p className="text-xs text-[#0B3D2E]/50">
+                    {new Date(post.publishedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                  </p>
+                  <h2 className="mt-2 font-[family-name:var(--font-garamond)] text-xl text-[#0B3D2E]">{post.title}</h2>
+                  {post.excerpt && <p className="mt-2 text-sm text-[#0B3D2E]/70">{post.excerpt}</p>}
+                </div>
+              </Link>
+            ))}
           </div>
         )}
-
-        <div className="mt-8 flex flex-col gap-4">
-          {blocks.map((block, i) => {
-            if (block.startsWith("### ")) {
-              return (
-                <h3 key={i} className="mt-4 text-lg font-semibold text-[#0B3D2E] sm:text-xl">
-                  {block.replace("### ", "")}
-                </h3>
-              );
-            }
-            if (block.startsWith("## ")) {
-              return (
-                <h2 key={i} className="mt-8 border-t border-[#0B3D2E]/10 pt-6 font-[family-name:var(--font-garamond)] text-2xl leading-tight text-[#0B3D2E] sm:text-3xl">
-                  {block.replace("## ", "")}
-                </h2>
-              );
-            }
-            return (
-              <p key={i} className="text-sm leading-relaxed text-[#0B3D2E]/80 sm:text-base">
-                {block}
-              </p>
-            );
-          })}
-        </div>
-
-        <Link href="/blog" className="mt-8 inline-block text-sm text-[#0B3D2E]/60 underline">← Retour au blog</Link>
-      </article>
+      </section>
 
       <Footer />
     </main>
