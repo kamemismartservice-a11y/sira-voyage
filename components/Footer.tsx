@@ -11,7 +11,17 @@ const correspondants = [
 const whatsappNumbers = [
   "+225 05 45 51 62 69",
   "+225 07 07 69 76 47",
-  "+225 01 50 32 32 79",
+  "+225 01 52 88 27 27",
+  "+225 07 07 67 97 91",
+];
+
+const socialLinks = [
+  { label: "Google", href: "https://g.co/kgs/2GhiQhw" },
+  { label: "Facebook", href: "https://www.facebook.com/siravoyageci" },
+  { label: "Instagram", href: "https://www.instagram.com/siravoyage225/" },
+  { label: "TikTok", href: "https://www.tiktok.com/@siravoyage23" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/sira-voyages-abidjan/" },
+  { label: "WhatsApp", href: "https://wa.me/22545516269" },
 ];
 
 export default function Footer() {
@@ -62,10 +72,9 @@ export default function Footer() {
         <div>
           <p className="mb-4 text-xs font-semibold tracking-[0.25em] text-[#B7962F]">SUIVEZ-NOUS</p>
           <div className="flex flex-col gap-2 text-sm">
-            <a href="https://g.co/kgs/2GhiQhw" target="_blank" rel="noopener noreferrer" className="text-[#F8F6F0]/80 hover:text-[#B7962F]">Google</a>
-            <a href="https://www.facebook.com/siravoyageci" target="_blank" rel="noopener noreferrer" className="text-[#F8F6F0]/80 hover:text-[#B7962F]">Facebook</a>
-            <a href="https://www.instagram.com/siravoyage225/" target="_blank" rel="noopener noreferrer" className="text-[#F8F6F0]/80 hover:text-[#B7962F]">Instagram</a>
-            <a href="https://wa.me/22545516269" target="_blank" rel="noopener noreferrer" className="text-[#F8F6F0]/80 hover:text-[#B7962F]">WhatsApp</a>
+            {socialLinks.map((s) => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="text-[#F8F6F0]/80 hover:text-[#B7962F]">{s.label}</a>
+            ))}
           </div>
 
           <p className="mt-6 mb-2 text-xs font-semibold tracking-[0.25em] text-[#B7962F]">NAVIGATION</p>

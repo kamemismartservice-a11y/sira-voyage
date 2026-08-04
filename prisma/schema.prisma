@@ -18,6 +18,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   entreprises Entreprise[]
+
+  contentItemsAssignes ContentItem[]        @relation("ContentAssigne")
+  contentItemsCrees    ContentItem[]        @relation("ContentCreateur")
+  contentActivityLogs  ContentActivityLog[] @relation("ContentActivityUser")
 }
 
 enum CategorieEntreprise {
@@ -207,4 +211,91 @@ model BlogPost {
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ============================================================
+// MODULE CONTENT HUB — suivi éditorial de l'équipe communication
+// ============================================================
+
+enum ContentRubrique {
+  omra_conseils
+  billetterie_express
+  visa_formalites
+  destination_ci
+  spiritualite
+  transport_navettes
+  temoignages_vie_sira
+}
+
+enum ContentCouche {
+  moteur_commercial
+  services_permanents
+  marque
+}
+
+enum ContentFormat {
+  article_seo
+  facebook
+  instagram
+  linkedin
+  tiktok
+  reel
+  youtube_short
+  youtube_video
+  newsletter
+  whatsapp
+  story
+  pinterest
+  google_business
+  faq
+  carrousel
+  voix_off
+}
+
+enum ContentStatut {
+  a_faire
+  en_cours
+  a_valider
+  publie
+}
+
+model ContentItem {
+  id                     String          @id @default(cuid())
+  titre                  String
+  theme                  String?
+  rubrique               ContentRubrique
+  couche                 ContentCouche   @default(moteur_commercial)
+  format                 ContentFormat
+  statut                 ContentStatut   @default(a_faire)
+  texte                  String?         @db.Text
+  lienVisuel             String?
+  hashtags               String?
+  datePublicationPrevue  DateTime?
+  datePublicationReelle  DateTime?
+
+  assigneId              String?
+  assigne                User?           @relation("ContentAssigne", fields: [assigneId], references: [id])
+
+  createdById            String?
+  createdBy              User?           @relation("ContentCreateur", fields: [createdById], references: [id])
+
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  activityLogs           ContentActivityLog[]
+}
+
+model ContentActivityLog {
+  id            String         @id @default(cuid())
+  contentItemId String
+  contentItem   ContentItem    @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  userId        String?
+  user          User?          @relation("ContentActivityUser", fields: [userId], references: [id])
+
+  action        String
+  ancienStatut  ContentStatut?
+  nouveauStatut ContentStatut?
+
+  createdAt     DateTime       @default(now())
 }
