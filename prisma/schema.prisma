@@ -297,5 +297,54 @@ model ContentActivityLog {
   ancienStatut  ContentStatut?
   nouveauStatut ContentStatut?
 
-  createdAt     DateTime       @default(now())
+createdAt     DateTime       @default(now())
+}// ============================================================
+// MODULE BIBLIOTHÈQUE MARKETING — Content Hub en ligne
+// ============================================================
+
+enum FicheStatut {
+  a_ecrire
+  en_relecture
+  valide
+  programme
+  publie
+}
+
+enum FicheType {
+  commercial
+  autorite_seo
+}
+
+model FicheMarketing {
+  id                  String      @id @default(cuid())
+  idFiche             String      @unique
+  bibliotheque        String
+  categorie           String?
+  sousCategorie       String?
+  titre               String
+  objectif            String?
+  publicCible         String?
+  motCle              String?
+  motsClesSecondaires String?
+  requeteBrute        String?
+  intention           String?
+  angle               String?     @db.Text
+  formats             String?     @db.Text
+  cta                 String?
+  priorite            String?
+  type                FicheType   @default(commercial)
+  statut              FicheStatut @default(a_ecrire)
+  responsable         String?
+  lienDossier         String?
+
+  datePublication     DateTime?
+  vues                Int?
+  clics               Int?
+  reservations        Int?
+  partages            Int?
+
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  
 }
