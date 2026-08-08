@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { updateContentItem } from "../actions";
+import ShareContentButtons from "./ShareContentButtons";
 
 const EMERALD = "#0B3D2E";
 const GOLD = "#B7962F";
@@ -74,14 +75,18 @@ export default async function ContenuDetailPage({ params }: { params: Promise<{ 
         <section style={{ ...card, marginTop: "1rem" }}>
           <h2 style={{ fontFamily: SERIF, color: EMERALD, marginTop: 0 }}>{item.titre}</h2>
 
-          <div style={infoRow}><span style={infoLabel}>Thème</span><span>{item.theme || "—"}</span></div>
-          <div style={infoRow}><span style={infoLabel}>Rubrique</span><span>{item.rubrique}</span></div>
-          <div style={infoRow}><span style={infoLabel}>Couche</span><span>{item.couche}</span></div>
-          <div style={infoRow}><span style={infoLabel}>Format</span><span>{item.format}</span></div>
-          <div style={infoRow}><span style={infoLabel}>Assigné à</span><span>{item.assigne?.name || item.assigne?.email || "—"}</span></div>
-          <div style={infoRow}>
-            <span style={infoLabel}>Fiche Bibliothèque</span>
-            <span>{fiche ? `${fiche.idFiche} — ${fiche.titre}` : "—"}</span>
+          <ShareContentButtons titre={item.titre} texte={item.texte || ""} hashtags={item.hashtags || ""} />
+
+          <div style={{ marginTop: "1.25rem" }}>
+            <div style={infoRow}><span style={infoLabel}>Thème</span><span>{item.theme || "—"}</span></div>
+            <div style={infoRow}><span style={infoLabel}>Rubrique</span><span>{item.rubrique}</span></div>
+            <div style={infoRow}><span style={infoLabel}>Couche</span><span>{item.couche}</span></div>
+            <div style={infoRow}><span style={infoLabel}>Format</span><span>{item.format}</span></div>
+            <div style={infoRow}><span style={infoLabel}>Assigné à</span><span>{item.assigne?.name || item.assigne?.email || "—"}</span></div>
+            <div style={infoRow}>
+              <span style={infoLabel}>Fiche Bibliothèque</span>
+              <span>{fiche ? `${fiche.idFiche} — ${fiche.titre}` : "—"}</span>
+            </div>
           </div>
         </section>
 
