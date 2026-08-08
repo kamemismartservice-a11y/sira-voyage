@@ -37,6 +37,9 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
           <Link href="/crm/bibliotheque" style={linkStyle}>
             Bibliothèque
           </Link>
+          <Link href="/crm/aide" style={linkStyle}>
+            Aide
+          </Link>
         </div>
         <form
           action={async () => {
