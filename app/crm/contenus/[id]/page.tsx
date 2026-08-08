@@ -47,10 +47,14 @@ export default async function ContenuDetailPage({ params }: { params: Promise<{ 
 
   const item = await prisma.contentItem.findUnique({
     where: { id },
-    include: { assigne: true, ficheMarketing: true },
+    include: { assigne: true },
   });
 
   if (!item) notFound();
+
+  const fiche = item.ficheMarketingId
+    ? await prisma.ficheMarketing.findUnique({ where: { id: item.ficheMarketingId } })
+    : null;
 
   return (
     <div style={{ background: OFFWHITE, minHeight: "100vh", fontFamily: SANS }}>
@@ -77,7 +81,7 @@ export default async function ContenuDetailPage({ params }: { params: Promise<{ 
           <div style={infoRow}><span style={infoLabel}>Assigné à</span><span>{item.assigne?.name || item.assigne?.email || "—"}</span></div>
           <div style={infoRow}>
             <span style={infoLabel}>Fiche Bibliothèque</span>
-            <span>{item.ficheMarketing ? `${item.ficheMarketing.idFiche} — ${item.ficheMarketing.titre}` : "—"}</span>
+            <span>{fiche ? `${fiche.idFiche} — ${fiche.titre}` : "—"}</span>
           </div>
         </section>
 
