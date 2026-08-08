@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 export async function createContentItem(formData: FormData) {
   const titre = formData.get("titre") as string;
   const theme = formData.get("theme") as string;
+  const ficheMarketingId = formData.get("ficheMarketingId") as string;
   const rubrique = formData.get("rubrique") as string;
   const couche = formData.get("couche") as string;
   const format = formData.get("format") as string;
@@ -23,6 +24,7 @@ export async function createContentItem(formData: FormData) {
     data: {
       titre,
       theme: theme || undefined,
+      ficheMarketingId: ficheMarketingId || undefined,
       rubrique: rubrique as any,
       couche: (couche || "moteur_commercial") as any,
       format: format as any,
@@ -78,4 +80,28 @@ export async function updateContentStatut(formData: FormData) {
   });
 
   revalidatePath("/crm/contenus");
+  revalidatePath(`/crm/contenus/${id}`);
+}
+
+export async function updateContentItem(formData: FormData) {
+  const id = formData.get("id") as string;
+  const texte = formData.get("texte") as string;
+  const hashtags = formData.get("hashtags") as string;
+  const lienVisuel = formData.get("lienVisuel") as string;
+  const statut = formData.get("statut") as string;
+
+  if (!id) throw new Error("ID manquant");
+
+  await prisma.contentItem.update({
+    where: { id },
+    data: {
+      texte: texte || undefined,
+      hashtags: hashtags || undefined,
+      lienVisuel: lienVisuel || undefined,
+      statut: (statut || undefined) as any,
+    },
+  });
+
+  revalidatePath("/crm/contenus");
+  revalidatePath(`/crm/contenus/${id}`);
 }

@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createContentItem, updateContentStatut } from "./actions";
-import { HashtagChip } from "./HashtagPack";
+import TitreThemeField from "./TitreThemeField";
+import HashtagPicker from "./HashtagPicker";
 
 const EMERALD = "#0B3D2E";
 const GOLD = "#B7962F";
@@ -48,13 +50,6 @@ const STATUT_STYLE: Record<string, { bg: string; text: string }> = {
   publie: { bg: EMERALD, text: WHITE },
 };
 
-const HASHTAG_PACKS = [
-  { pack: "Génériques", tags: "#Omra #Omra2026 #Omra2027 #Hajj #Mecque #Medine #Islam #VoyageReligieux #Pèlerinage #SiraVoyages" },
-  { pack: "Côte d'Ivoire", tags: "#Abidjan #CotedIvoire #VoyageCI #MusulmansCI #OmraCI #HajjCI #AgenceVoyageCI" },
-  { pack: "France", tags: "#Paris #France #MusulmansFrance #OmraFrance #HajjFrance #VoyageIslam" },
-  { pack: "SEO", tags: "#VisaOmra #PrixOmra #Ramadan #Kaaba #ArabieSaoudite #VisaArabieSaoudite #AgenceOmra #VoyageSpirituel" },
-];
-
 const card: React.CSSProperties = {
   background: WHITE,
   borderRadius: 14,
@@ -76,7 +71,7 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default async function ContenusPage() {
-  const [items, users] = await Promise.all([
+  const [items, users, fiches] = await Promise.all([
     prisma.contentItem.findMany({
       include: { assigne: true },
       orderBy: { createdAt: "desc" },
@@ -84,6 +79,10 @@ export default async function ContenusPage() {
     prisma.user.findMany({
       where: { role: { not: "client" } },
       orderBy: { name: "asc" },
+    }),
+    prisma.ficheMarketing.findMany({
+      select: { id: true, titre: true, motCle: true },
+      orderBy: { titre: "asc" },
     }),
   ]);
 
@@ -96,7 +95,6 @@ export default async function ContenusPage() {
 
   return (
     <div style={{ background: OFFWHITE, minHeight: "100vh", fontFamily: SANS }}>
-      {/* Bandeau */}
       <div style={{ background: EMERALD, padding: "2rem 2.5rem", marginBottom: "2rem" }}>
         <h1 style={{ color: WHITE, fontFamily: SERIF, fontSize: "2rem", margin: 0 }}>
           SIRA VOYAGES
@@ -108,7 +106,6 @@ export default async function ContenusPage() {
       </div>
 
       <div style={{ padding: "0 2.5rem 3rem", maxWidth: 1200, margin: "0 auto" }}>
-        {/* Suivi équipe */}
         <section style={card}>
           <h2 style={{ fontFamily: SERIF, color: EMERALD, marginTop: 0 }}>Suivi de l'équipe (temps réel)</h2>
           <div style={{ overflow: "hidden", borderRadius: 10, border: `1px solid ${BORDER}` }}>
@@ -144,28 +141,11 @@ export default async function ContenusPage() {
           </div>
         </section>
 
-        {/* Bibliothèque de hashtags */}
-        <section style={card}>
-          <h2 style={{ fontFamily: SERIF, color: EMERALD, marginTop: 0 }}>Bibliothèque de hashtags</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
-            {HASHTAG_PACKS.map((h) => (
-              <HashtagChip key={h.pack} pack={h.pack} tags={h.tags} />
-            ))}
-          </div>
-        </section>
-
-        {/* Ajouter un contenu */}
         <section style={card}>
           <h2 style={{ fontFamily: SERIF, color: EMERALD, marginTop: 0 }}>Ajouter un contenu</h2>
           <form action={createContentItem} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
-            <div style={fieldWrap}>
-              <label style={fieldLabel}>Titre / sujet</label>
-              <input name="titre" style={inputStyle} required />
-            </div>
-            <div style={fieldWrap}>
-              <label style={fieldLabel}>Thème (ex : prix Omra 2026)</label>
-              <input name="theme" style={inputStyle} />
-            </div>
+            <TitreThemeField fiches={fiches} />
+
             <div style={fieldWrap}>
               <label style={fieldLabel}>Rubrique du jour</label>
               <select name="rubrique" style={inputStyle} required defaultValue="">
@@ -206,13 +186,15 @@ export default async function ContenusPage() {
               <input name="datePublicationPrevue" type="date" style={inputStyle} />
             </div>
             <div style={fieldWrap}>
-              <label style={fieldLabel}>Hashtags</label>
-              <input name="hashtags" style={inputStyle} placeholder="Coller depuis la bibliothèque ci-dessus" />
-            </div>
-            <div style={fieldWrap}>
               <label style={fieldLabel}>Lien du visuel (Canva, Drive...)</label>
               <input name="lienVisuel" style={inputStyle} />
             </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={{ ...fieldLabel, marginBottom: "0.5rem", display: "block" }}>Hashtags</label>
+              <HashtagPicker />
+            </div>
+
             <div style={{ ...fieldWrap, gridColumn: "1 / -1" }}>
               <label style={fieldLabel}>Texte du contenu</label>
               <textarea name="texte" rows={4} style={{ ...inputStyle, resize: "vertical", fontFamily: SANS }} />
@@ -237,7 +219,6 @@ export default async function ContenusPage() {
           </form>
         </section>
 
-        {/* Liste des contenus */}
         <section style={card}>
           <h2 style={{ fontFamily: SERIF, color: EMERALD, marginTop: 0 }}>Liste des contenus ({items.length})</h2>
           <div style={{ overflow: "hidden", borderRadius: 10, border: `1px solid ${BORDER}` }}>
@@ -256,7 +237,14 @@ export default async function ContenusPage() {
                   const s = STATUT_STYLE[item.statut];
                   return (
                     <tr key={item.id} style={{ background: idx % 2 === 0 ? OFFWHITE : WHITE }}>
-                      <td style={{ padding: "0.65rem 1rem", fontWeight: 600 }}>{item.titre}</td>
+                      <td style={{ padding: "0.65rem 1rem" }}>
+                        <Link
+                          href={`/crm/contenus/${item.id}`}
+                          style={{ color: EMERALD, fontWeight: 600, textDecoration: "underline" }}
+                        >
+                          {item.titre}
+                        </Link>
+                      </td>
                       <td style={{ padding: "0.65rem 1rem" }}>{RUBRIQUES.find((r) => r.value === item.rubrique)?.label ?? item.rubrique}</td>
                       <td style={{ padding: "0.65rem 1rem" }}>{item.format}</td>
                       <td style={{ padding: "0.65rem 1rem" }}>{item.assigne?.name || item.assigne?.email || "—"}</td>
