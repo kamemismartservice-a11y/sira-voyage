@@ -6,6 +6,11 @@ import Footer from "@/components/Footer";
 import ShareButtons from "@/components/ShareButtons";
 import { prisma } from "@/lib/prisma";
 
+// Empêche Next.js d'essayer de pré-générer cette page au moment du build.
+// Le contenu dépend entièrement de la base de données, donc il doit être
+// calculé à chaque visite, jamais pendant la construction du site.
+export const dynamic = "force-dynamic";
+
 function getEmbedUrl(url: string) {
   if (url.includes("youtube.com") || url.includes("youtu.be")) {
     const idMatch = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -17,6 +22,8 @@ function getEmbedUrl(url: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!slug) return {};
+
   const post = await prisma.blogPost.findUnique({ where: { slug } });
   if (!post) return {};
 
@@ -42,6 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!slug) notFound();
 
   const post = await prisma.blogPost.findUnique({ where: { slug } });
   if (!post || !post.published) notFound();
@@ -91,7 +99,10 @@ export default async function BlogPostDetail({ params }: { params: Promise<{ slu
             }
             if (block.startsWith("## ")) {
               return (
-                <h2 key={i} className="mt-8 border-t border-[#0B3D2E]/10 pt-6 font-[family-name:var(--font-garamond)] text-2xl leading-tight text-[#0B3D2E] sm:text-3xl">
+                <h2
+                  key={i}
+                  className="mt-8 border-t border-[#0B3D2E]/10 pt-6 font-[family-name:var(--font-garamond)] text-2xl leading-tight text-[#0B3D2E]"
+                >
                   {block.replace("## ", "")}
                 </h2>
               );
@@ -108,7 +119,9 @@ export default async function BlogPostDetail({ params }: { params: Promise<{ slu
           <ShareButtons url={pageUrl} title={post.title} caption={post.excerpt || post.title} />
         </div>
 
-        <Link href="/blog" className="mt-8 inline-block text-sm text-[#0B3D2E]/60 underline">← Retour au blog</Link>
+        <Link href="/blog" className="mt-8 inline-block text-sm text-[#0B3D2E]/60 underline">
+          ← Retour au blog
+        </Link>
       </article>
 
       <Footer />
