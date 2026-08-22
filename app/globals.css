@@ -34,9 +34,9 @@ body {
   font-family: var(--font-garamond), Georgia, serif;
   padding: 4rem 2rem 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -151,7 +151,7 @@ body {
 /* Responsive */
 @media (max-width: 1024px) {
   .site-footer {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -271,21 +271,6 @@ body {
   color: #B7962F;
 }
 
-.faq-item {
-  margin-bottom: 1.75rem;
-}
-
-.faq-item h3 {
-  font-size: 1.05rem;
-  color: #0B3D2E;
-  margin-bottom: 0.4rem;
-}
-
-.faq-item p {
-  color: #3a3a3a;
-  line-height: 1.6;
-}
-
 .local-contact address {
   font-style: normal;
   line-height: 1.7;
@@ -323,7 +308,9 @@ body {
     flex-direction: row;
     justify-content: center;
   }
-}/* ===== FAQ ACCORDÉON ===== */
+}
+
+/* ===== FAQ ACCORDÉON ===== */
 
 .faq-item {
   border-bottom: 1px solid #e5e0d5;
@@ -359,6 +346,12 @@ body {
 
 .faq-item[open] summary::after {
   content: "−";
+}
+
+.faq-item h3 {
+  font-size: 1.05rem;
+  color: #0B3D2E;
+  margin-bottom: 0.4rem;
 }
 
 .faq-item p {

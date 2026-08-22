@@ -30,9 +30,6 @@ export default async function Home() {
 
   return (
     <main className="relative flex min-h-[100svh] flex-col overflow-hidden bg-[#0B3D2E]">
-      <Image src="/images/hero-mecque.png" alt="La Mecque" fill priority className="object-cover object-center" />
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(4,23,18,0.75) 0%, rgba(6,37,27,0.55) 45%, rgba(11,61,46,0.92) 100%)" }} />
-
       <div className="relative z-10">
         <Header />
       </div>
@@ -105,8 +102,6 @@ export default async function Home() {
           ))}
         </div>
       </section>
-
-      <div aria-hidden className="relative z-10 h-10 w-full sm:h-12" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23B7962F' stroke-width='1'%3E%3Cpath d='M32 4 L40 24 L60 24 L44 36 L50 56 L32 44 L14 56 L20 36 L4 24 L24 24 Z'/%3E%3C/g%3E%3C/svg%3E\")", backgroundRepeat: "repeat-x", backgroundSize: "48px 48px", backgroundPosition: "center", opacity: 0.35 }} />
 
       <Footer />
     </main>
