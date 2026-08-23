@@ -2,8 +2,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ProductShare from "@/components/ProductShare";
 
 const WHATSAPP_NUMBER = "2250545516269";
+const SITE_URL = "https://omrahajjabidjan.com";
+
+function parseList(text: string | null): string[] {
+  if (!text) return [];
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
 
 export default async function ServiceDetail({ params }: { params: Promise<{ categorie: string; slug: string }> }) {
   const { categorie, slug } = await params;
@@ -21,15 +33,15 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
   const message = `Bonjour, je souhaite réserver : ${item.title}`;
   const isHajj = category.slug === "hajj";
 
+  const inclusionsList = parseList(item.inclusions);
+  const exclusionsList = parseList(item.exclusions);
+  const pointsFortsList = parseList(item.pointsForts);
+
+  const pageUrl = `${SITE_URL}/services/${categorie}/${slug}`;
+
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
-      <header className="flex items-center justify-between bg-[#0B3D2E] px-6 py-6 sm:px-10">
-        <Link href="/" className="font-[family-name:var(--font-garamond)] text-xl tracking-wide text-[#F8F6F0] sm:text-2xl">Sira Voyage</Link>
-        <nav className="flex items-center gap-6 text-sm text-[#F8F6F0]/80">
-          <Link href="/" className="transition-colors hover:text-[#B7962F]">Accueil</Link>
-          <Link href="/services" className="text-[#B7962F]">Services</Link>
-        </nav>
-      </header>
+      <Header />
 
       <div className="relative overflow-hidden">
         {item.image ? (
@@ -77,8 +89,53 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
           )
         )}
 
+        {pointsFortsList.length > 0 && (
+          <div className="mt-8">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#B7962F]">Pourquoi choisir cette expérience ?</p>
+            <ul className="flex flex-col gap-2">
+              {pointsFortsList.map((point, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-[#0B3D2E]/85">
+                  <span className="mt-0.5 text-[#B7962F]">★</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {(inclusionsList.length > 0 || exclusionsList.length > 0) && (
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            {inclusionsList.length > 0 && (
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#B7962F]">Ce que votre voyage inclut</p>
+                <ul className="flex flex-col gap-2">
+                  {inclusionsList.map((line, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#0B3D2E]/85">
+                      <span className="mt-0.5 text-green-700">✓</span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {exclusionsList.length > 0 && (
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#B7962F]">Ce qui n&apos;est pas inclus</p>
+                <ul className="flex flex-col gap-2">
+                  {exclusionsList.map((line, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#0B3D2E]/70">
+                      <span className="mt-0.5 text-red-600">✕</span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
         {item.sessions.length > 0 && (
-          <div className="mt-6 flex flex-col gap-6">
+          <div className="mt-8 flex flex-col gap-6">
             {item.sessions.map((s) => (
               <div key={s.id} className="overflow-hidden rounded-xl border border-[#0B3D2E]/10 bg-white">
                 <div className="grid gap-0 sm:grid-cols-[minmax(0,260px)_1fr]">
@@ -114,8 +171,12 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
           </div>
         )}
 
-        <Link href="/services" className="mt-6 inline-block text-sm text-[#0B3D2E]/60 underline">← Retour à tous les services</Link>
+        <ProductShare title={item.title} url={pageUrl} />
+
+        <Link href="/services" className="mt-8 inline-block text-sm text-[#0B3D2E]/60 underline">← Retour à tous les services</Link>
       </section>
+
+      <Footer />
     </main>
   );
 }

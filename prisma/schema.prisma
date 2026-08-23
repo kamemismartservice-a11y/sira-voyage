@@ -181,6 +181,9 @@ model ServiceItem {
   priceGridDouble      String?
   priceGridIndividuelle String?
   tags                 String?
+  inclusions           String?  @db.Text
+  exclusions           String?  @db.Text
+  pointsForts          String?  @db.Text
   sessions             OmraSession[]
 
   @@unique([categoryId, slug])
