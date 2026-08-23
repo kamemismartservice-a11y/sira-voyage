@@ -468,4 +468,10 @@ body {
   .local-hero-image {
     height: 180px;
   }
+}/* ===== BARRE D'ACTION MOBILE ===== */
+
+@media (max-width: 639px) {
+  body {
+    padding-bottom: calc(52px + env(safe-area-inset-bottom));
+  }
 }
