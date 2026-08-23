@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductShare from "@/components/ProductShare";
+import { faqItems } from "@/lib/faq-data";
 
 const WHATSAPP_NUMBER = "2250545516269";
 const SITE_URL = "https://omrahajjabidjan.com";
@@ -33,23 +34,6 @@ const HAJJ_PROGRAMME = [
   { titre: "Retour et suivi", texte: "Vol retour et suivi post-voyage par l'équipe SIRA VOYAGES." },
 ];
 
-const OMRA_FAQ = [
-  { q: "Quels documents faut-il pour réserver une Omra ?", a: "Un passeport valide 12 mois après la date de retour, deux photos d'identité récentes, le carnet de vaccination contre la méningite, et vos ordonnances en cas de maladie chronique." },
-  { q: "Le visa Omra est-il inclus ?", a: "L'assistance pour le visa Omra est incluse dans la formule, selon les conditions applicables et la validation du dossier. L'obtention du visa reste soumise à la décision des autorités compétentes." },
-  { q: "Peut-on choisir une chambre individuelle ?", a: "Oui, selon les disponibilités de la session choisie. Le tarif varie selon le type de chambre (quadruple, triple, double ou individuelle)." },
-  { q: "Comment se passe le paiement ?", a: "Un acompte de 30% est demandé à la réservation, un deuxième versement de 40% au plus tard 75 jours avant le départ, et le solde de 30% au plus tard 45 jours avant le départ." },
-  { q: "L'agence accompagne-t-elle les pèlerins sur place ?", a: "Oui, un encadrement professionnel et un accompagnement religieux qualifié sont assurés avant, pendant et après le séjour." },
-  { q: "Que faut-il prévoir dans la valise ?", a: "Vos documents de voyage, votre tenue d'ihram, vos médicaments personnels et vos effets pour la durée du séjour. Contactez l'agence pour une liste plus complète adaptée à votre formule." },
-];
-
-const HAJJ_FAQ = [
-  { q: "Quel est le prix du Hajj avec SIRA VOYAGES ?", a: "La formule est proposée à partir de 5 500 000 FCFA. Le tarif définitif est confirmé selon le programme et les prestations retenues." },
-  { q: "Quels documents faut-il préparer ?", a: "Un passeport valide 12 mois après le retour, des photos d'identité récentes, le carnet de vaccination requis et vos ordonnances en cas de maladie chronique." },
-  { q: "Comment se déroule la préinscription ?", a: "Contactez SIRA VOYAGES pour connaître les modalités de préinscription et les conditions de participation en vigueur pour la campagne Hajj concernée." },
-  { q: "Le visa Hajj est-il garanti ?", a: "Non. L'agence assiste dans la préparation et la constitution du dossier, mais l'obtention du visa dépend toujours des autorités compétentes." },
-  { q: "Y a-t-il un accompagnement religieux ?", a: "Oui, un encadrement religieux qualifié accompagne les pèlerins tout au long du programme des rites du Hajj." },
-];
-
 const DOCUMENTS_REQUIS = [
   "Passeport valide 12 mois après la date de retour",
   "Deux photos d'identité récentes",
@@ -62,6 +46,24 @@ const CONDITIONS_PAIEMENT = [
   { label: "2ème versement", valeur: "40% du prix total, au plus tard 75 jours avant le départ" },
   { label: "Solde", valeur: "30% restants, au plus tard 45 jours avant le départ" },
 ];
+
+// Associe la FAQ existante (source unique : lib/faq-data.ts) au produit, sans duplication de contenu.
+function getRelevantFaq(categorySlug: string) {
+  if (categorySlug === "hajj") {
+    return faqItems.filter((f) => f.articleSlug.startsWith("hajj")).slice(0, 8);
+  }
+  if (categorySlug === "omra") {
+    return faqItems
+      .filter(
+        (f) =>
+          f.articleSlug.startsWith("omra") ||
+          f.articleSlug.startsWith("mecque-") ||
+          f.articleSlug.startsWith("medine-")
+      )
+      .slice(0, 8);
+  }
+  return [];
+}
 
 export default async function ServiceDetail({ params }: { params: Promise<{ categorie: string; slug: string }> }) {
   const { categorie, slug } = await params;
@@ -80,6 +82,29 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
     take: 4,
   });
 
+  // Articles de blog associés (source unique : table BlogPost), sans duplication de contenu.
+  let relatedPosts: { slug: string; title: string; excerpt: string | null }[] = [];
+  if (category.slug === "hajj") {
+    relatedPosts = await prisma.blogPost.findMany({
+      where: { published: true, slug: { startsWith: "hajj" } },
+      select: { slug: true, title: true, excerpt: true },
+      take: 4,
+    });
+  } else if (category.slug === "omra") {
+    relatedPosts = await prisma.blogPost.findMany({
+      where: {
+        published: true,
+        OR: [
+          { slug: { startsWith: "omra" } },
+          { slug: { startsWith: "mecque-" } },
+          { slug: { startsWith: "medine-" } },
+        ],
+      },
+      select: { slug: true, title: true, excerpt: true },
+      take: 4,
+    });
+  }
+
   const tagsList = item.tags ? item.tags.split(",") : [];
   const message = `Bonjour, je souhaite réserver : ${item.title}`;
   const isHajj = category.slug === "hajj";
@@ -92,9 +117,8 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
 
   const pageUrl = `${SITE_URL}/services/${categorie}/${slug}`;
   const programme = isHajj ? HAJJ_PROGRAMME : isOmra ? OMRA_PROGRAMME : null;
-  const faq = isHajj ? HAJJ_FAQ : isOmra ? OMRA_FAQ : null;
+  const relevantFaq = getRelevantFaq(category.slug);
 
-  // Galerie photo : image principale + images des sessions (si disponibles)
   const galleryImages = Array.from(
     new Set(
       [item.image, ...item.sessions.map((s) => s.image)].filter((img): img is string => Boolean(img))
@@ -106,14 +130,12 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
       <Header />
 
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-8">
-        {/* En-tête titre */}
         <div className="mb-4">
           {item.badge && <span className="mb-2 inline-block rounded-full border border-[#B7962F]/50 bg-[#B7962F]/10 px-3 py-1 text-xs font-medium text-[#B7962F]">{item.badge}</span>}
           <h1 className="font-[family-name:var(--font-garamond)] text-2xl text-[#0B3D2E] sm:text-3xl">{item.title}</h1>
           {item.subtitle && <p className="mt-1 text-sm text-[#0B3D2E]/60">{item.subtitle}</p>}
         </div>
 
-        {/* Galerie */}
         {galleryImages.length > 0 && (
           <div className="grid grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl" style={{ height: "360px" }}>
             <div className="relative col-span-4 row-span-2 sm:col-span-2">
@@ -127,7 +149,6 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
           </div>
         )}
 
-        {/* Corps + sidebar */}
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
           <div>
             {isHajj && (
@@ -276,15 +297,30 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
               </div>
             )}
 
-            {faq && (
+            {relevantFaq.length > 0 && (
               <div className="mb-8">
                 <p className="mb-4 text-sm font-semibold text-[#0B3D2E]">Questions fréquentes</p>
                 <div className="flex flex-col gap-1">
-                  {faq.map((q, i) => (
-                    <details key={i} className="border-b border-[#0B3D2E]/10 py-3">
-                      <summary className="cursor-pointer text-sm font-medium text-[#0B3D2E]">{q.q}</summary>
-                      <p className="mt-2 text-sm text-[#0B3D2E]/70">{q.a}</p>
+                  {relevantFaq.map((f) => (
+                    <details key={f.slug} className="border-b border-[#0B3D2E]/10 py-3">
+                      <summary className="cursor-pointer text-sm font-medium text-[#0B3D2E]">{f.question}</summary>
+                      <p className="mt-2 text-sm text-[#0B3D2E]/70">{f.answer}</p>
                     </details>
+                  ))}
+                </div>
+                <Link href="/faq" className="mt-3 inline-block text-xs font-medium text-[#B7962F] underline">Voir toute la FAQ →</Link>
+              </div>
+            )}
+
+            {relatedPosts.length > 0 && (
+              <div className="mb-8">
+                <p className="mb-4 text-sm font-semibold text-[#0B3D2E]">Pour aller plus loin</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {relatedPosts.map((post) => (
+                    <Link key={post.slug} href={`/blog/${post.slug}`} className="rounded-xl border border-[#0B3D2E]/10 bg-white p-4 transition-colors hover:border-[#B7962F]/40">
+                      <p className="text-sm font-medium text-[#0B3D2E]">{post.title}</p>
+                      {post.excerpt && <p className="mt-1 text-xs text-[#0B3D2E]/60 line-clamp-2">{post.excerpt}</p>}
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -293,7 +329,6 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
             <ProductShare title={item.title} url={pageUrl} />
           </div>
 
-          {/* Sidebar prix */}
           <aside className="h-fit rounded-xl border border-[#0B3D2E]/10 bg-white p-5 lg:sticky lg:top-6">
             {item.sessions.length === 0 && (
               <>
