@@ -3,18 +3,10 @@ import Link from "next/link";
 export default function Header() {
   return (
     <header className="relative z-10 flex w-full flex-col gap-3 bg-[#0B3D2E] px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 sm:px-10">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between">
         <Link href="/" className="font-[family-name:var(--font-garamond)] text-xl tracking-wide text-[#F8F6F0] sm:text-2xl">
           Sira Voyage
         </Link>
-        <form action="/recherche" method="get" className="flex sm:hidden">
-          <input
-            type="text"
-            name="q"
-            placeholder="Rechercher..."
-            className="h-8 w-32 rounded-full border border-[#B7962F]/30 bg-[#0B3D2E] px-3 text-xs text-[#F8F6F0] placeholder:text-[#F8F6F0]/40 outline-none focus:border-[#B7962F]"
-          />
-        </form>
       </div>
 
       <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:gap-x-5 sm:text-sm">
@@ -32,14 +24,6 @@ export default function Header() {
       </nav>
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <form action="/recherche" method="get" className="hidden sm:flex">
-          <input
-            type="text"
-            name="q"
-            placeholder="Rechercher..."
-            className="h-8 w-36 rounded-full border border-[#B7962F]/30 bg-[#0B3D2E] px-3 text-xs text-[#F8F6F0] placeholder:text-[#F8F6F0]/40 outline-none focus:border-[#B7962F]"
-          />
-        </form>
         <a
           href="tel:+2250545516269"
           className="inline-flex items-center gap-1.5 rounded-full border border-[#B7962F]/60 px-3 py-1.5 text-xs font-medium tracking-wide text-[#B7962F] transition-colors hover:bg-[#B7962F]/10"

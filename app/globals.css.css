@@ -1,0 +1,7 @@
+/* ===== BARRE D'ACTION MOBILE ===== */
+
+@media (max-width: 639px) {
+  body {
+    padding-bottom: calc(52px + env(safe-area-inset-bottom));
+  }
+}

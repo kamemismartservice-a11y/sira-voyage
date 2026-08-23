@@ -18,6 +18,13 @@ function parseList(text: string | null): string[] {
     .filter((line) => line.length > 0);
 }
 
+function extractNumericPrice(price: string): number | null {
+  const digits = price.replace(/[^\d]/g, "");
+  if (digits.length === 0) return null;
+  const num = parseInt(digits, 10);
+  return isNaN(num) ? null : num;
+}
+
 const OMRA_PROGRAMME = [
   { titre: "Avant le départ", texte: "Conseil, vérification du dossier et préparation du voyage avec l'équipe SIRA VOYAGES." },
   { titre: "Départ d'Abidjan", texte: "Assistance et formalités de départ le jour du vol." },
@@ -47,7 +54,6 @@ const CONDITIONS_PAIEMENT = [
   { label: "Solde", valeur: "30% restants, au plus tard 45 jours avant le départ" },
 ];
 
-// Associe la FAQ existante (source unique : lib/faq-data.ts) au produit, sans duplication de contenu.
 function getRelevantFaq(categorySlug: string) {
   if (categorySlug === "hajj") {
     return faqItems.filter((f) => f.articleSlug.startsWith("hajj")).slice(0, 8);
@@ -82,7 +88,6 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
     take: 4,
   });
 
-  // Articles de blog associés (source unique : table BlogPost), sans duplication de contenu.
   let relatedPosts: { slug: string; title: string; excerpt: string | null }[] = [];
   if (category.slug === "hajj") {
     relatedPosts = await prisma.blogPost.findMany({
@@ -125,8 +130,36 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
     )
   ).slice(0, 5);
 
+  // Données structurées (schema.org) — uniquement des informations déjà confirmées, aucun prix/disponibilité inventé.
+  const numericPrice = item.sessions.length === 0 ? extractNumericPrice(item.price) : null;
+
+  const productSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: item.title,
+    description: item.description || item.subtitle || `${item.title} — SIRA VOYAGES`,
+    url: pageUrl,
+    brand: { "@type": "Brand", name: "SIRA VOYAGES" },
+  };
+  if (galleryImages.length > 0) {
+    productSchema.image = galleryImages.map((img) => `${SITE_URL}${img}`);
+  }
+  if (numericPrice !== null) {
+    productSchema.offers = {
+      "@type": "Offer",
+      priceCurrency: "XOF",
+      price: numericPrice,
+      availability: "https://schema.org/InStock",
+      url: pageUrl,
+    };
+  }
+
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
       <Header />
 
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-8">

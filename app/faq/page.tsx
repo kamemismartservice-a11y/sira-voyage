@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { blogCategories } from "@/lib/blog-categories";
 import { faqItems } from "@/lib/faq-data";
-import { defaultCommuneImage } from "@/lib/commune-images";
 
 export const metadata: Metadata = {
   title: "FAQ Omra et Hajj | SIRA VOYAGES",
@@ -13,14 +11,27 @@ export const metadata: Metadata = {
 };
 
 export default function FaqPage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.answer,
+      },
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <Header />
       <main className="local-page faq-page">
-        <div className="local-hero-image">
-          <Image src={defaultCommuneImage} alt="FAQ Omra et Hajj" fill className="object-cover" priority />
-        </div>
-
         <section className="local-hero">
           <h1>Foire aux questions — Omra et Hajj</h1>
           <p>
