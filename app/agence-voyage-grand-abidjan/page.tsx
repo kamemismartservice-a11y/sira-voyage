@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getCommuneImage } from "@/lib/commune-images";
 
 export const metadata: Metadata = {
   title: "Agence de voyage Grand Abidjan | Omra, Hajj, billets et transferts | SIRA VOYAGES",
@@ -26,7 +29,12 @@ const communesLiees = [
 export default function GrandAbidjanHub() {
   return (
     <>
+      <Header />
       <main className="local-page">
+        <div className="local-hero-image">
+          <Image src={getCommuneImage("grand-abidjan")} alt="Grand Abidjan" fill className="object-cover" priority />
+        </div>
+
         <section className="local-hero">
           <h1>Agence de voyage dans le Grand Abidjan : Omra, Hajj et voyages sur mesure</h1>
           <p>

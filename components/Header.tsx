@@ -11,6 +11,7 @@ export default function Header() {
         <Link href="/a-propos" className="tracking-wide text-[#B7962F] transition-opacity hover:opacity-80">À propos</Link>
         <Link href="/services" className="tracking-wide text-[#B7962F] transition-opacity hover:opacity-80">Services</Link>
         <Link href="/blog" className="tracking-wide text-[#B7962F] transition-opacity hover:opacity-80">Blog</Link>
+        <Link href="/faq" className="tracking-wide text-[#B7962F] transition-opacity hover:opacity-80">FAQ</Link>
         <Link href="/contact" className="tracking-wide text-[#B7962F] transition-opacity hover:opacity-80">Contact</Link>
         <a href="https://siravoyage.com/login" target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#B7962F]/60 px-4 py-1.5 text-xs font-medium tracking-wide text-[#B7962F] transition-colors hover:bg-[#B7962F]/10 sm:text-sm">Espace Client</a>
       </nav>

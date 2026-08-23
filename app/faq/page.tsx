@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { blogCategories } from "@/lib/blog-categories";
 import { faqItems } from "@/lib/faq-data";
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
 export default function FaqPage() {
   return (
     <>
-      <main className="local-page">
+      <Header />
+      <main className="local-page faq-page">
         <section className="local-hero">
           <h1>Foire aux questions — Omra et Hajj</h1>
           <p>
@@ -21,21 +23,40 @@ export default function FaqPage() {
           </p>
         </section>
 
-        {blogCategories.map((cat) => {
-          const items = faqItems.filter((f) => f.categorySlug === cat.slug);
-          if (items.length === 0) return null;
-          return (
-            <section className="local-faq" key={cat.slug}>
-              <h2>{cat.label}</h2>
-              {items.map((item) => (
-                <details className="faq-item" key={item.slug}>
-                  <summary>{item.question}</summary>
-                  <p>{item.answer}</p>
-                </details>
-              ))}
-            </section>
-          );
-        })}
+        <div className="faq-layout">
+          <nav className="faq-sommaire" aria-label="Sommaire de la FAQ">
+            <p className="faq-sommaire-title">Sommaire</p>
+            <ul>
+              {blogCategories.map((cat) => {
+                const count = faqItems.filter((f) => f.categorySlug === cat.slug).length;
+                if (count === 0) return null;
+                return (
+                  <li key={cat.slug}>
+                    <a href={`#${cat.slug}`}>{cat.label}</a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="faq-content">
+            {blogCategories.map((cat) => {
+              const items = faqItems.filter((f) => f.categorySlug === cat.slug);
+              if (items.length === 0) return null;
+              return (
+                <section className="local-faq" id={cat.slug} key={cat.slug}>
+                  <h2>{cat.label}</h2>
+                  {items.map((item) => (
+                    <details className="faq-item" key={item.slug}>
+                      <summary>{item.question}</summary>
+                      <p>{item.answer}</p>
+                    </details>
+                  ))}
+                </section>
+              );
+            })}
+          </div>
+        </div>
       </main>
       <Footer />
     </>

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { communes } from "@/lib/communes-data";
+import { getCommuneImage } from "@/lib/commune-images";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export async function generateStaticParams() {
@@ -36,7 +39,12 @@ export default async function CommunePage({
 
   return (
     <>
+      <Header />
       <main className="local-page">
+        <div className="local-hero-image">
+          <Image src={getCommuneImage(data.slug)} alt={data.nom} fill className="object-cover" priority />
+        </div>
+
         <section className="local-hero">
           <h1>{data.h1}</h1>
           {data.intro.map((paragraph, i) => (

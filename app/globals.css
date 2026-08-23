@@ -360,3 +360,112 @@ body {
   color: #3a3a3a;
   line-height: 1.6;
 }
+
+/* ===== SOMMAIRE FAQ ===== */
+
+.faq-layout {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+.faq-sommaire {
+  flex: 0 0 220px;
+  position: sticky;
+  top: 2rem;
+  border-right: 1px solid #e5e0d5;
+  padding-right: 1.5rem;
+}
+
+.faq-sommaire-title {
+  font-family: var(--font-garamond), Georgia, serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #B7962F;
+  margin-bottom: 1rem;
+}
+
+.faq-sommaire ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.faq-sommaire li {
+  margin-bottom: 0.85rem;
+}
+
+.faq-sommaire a {
+  color: #0B3D2E;
+  text-decoration: none;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: block;
+  transition: color 0.2s ease;
+}
+
+.faq-sommaire a:hover {
+  color: #B7962F;
+}
+
+.faq-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.faq-content .local-faq {
+  scroll-margin-top: 2rem;
+}
+
+@media (max-width: 860px) {
+  .faq-layout {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .faq-sommaire {
+    position: static;
+    flex: 1;
+    border-right: none;
+    border-bottom: 1px solid #e5e0d5;
+    padding-right: 0;
+    padding-bottom: 1.5rem;
+    width: 100%;
+  }
+
+  .faq-sommaire ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .faq-sommaire li {
+    margin-bottom: 0;
+  }
+
+  .faq-sommaire a {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #e5e0d5;
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ===== IMAGE HERO PAGES LOCALES ===== */
+
+.local-hero-image {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+  .local-hero-image {
+    height: 180px;
+  }
+}

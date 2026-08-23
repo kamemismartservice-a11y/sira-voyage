@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getCommuneImage } from "@/lib/commune-images";
 
 export const metadata: Metadata = {
   title: "Agence de voyage à Abidjan | Omra, Hajj, billets et visa | SIRA VOYAGES",
@@ -11,7 +14,12 @@ export const metadata: Metadata = {
 export default function AgenceVoyageAbidjan() {
   return (
     <>
+      <Header />
       <main className="local-page">
+        <div className="local-hero-image">
+          <Image src={getCommuneImage("abidjan")} alt="Abidjan" fill className="object-cover" priority />
+        </div>
+
         <section className="local-hero">
           <h1>Agence de voyage à Abidjan : Omra, Hajj et voyages avec SIRA VOYAGES</h1>
           <p>
