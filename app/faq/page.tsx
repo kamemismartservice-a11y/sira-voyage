@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { blogCategories } from "@/lib/blog-categories";
 import { faqItems } from "@/lib/faq-data";
+import { defaultCommuneImage } from "@/lib/commune-images";
 
 export const metadata: Metadata = {
   title: "FAQ Omra et Hajj | SIRA VOYAGES",
@@ -15,6 +17,10 @@ export default function FaqPage() {
     <>
       <Header />
       <main className="local-page faq-page">
+        <div className="local-hero-image">
+          <Image src={defaultCommuneImage} alt="FAQ Omra et Hajj" fill className="object-cover" priority />
+        </div>
+
         <section className="local-hero">
           <h1>Foire aux questions — Omra et Hajj</h1>
           <p>
