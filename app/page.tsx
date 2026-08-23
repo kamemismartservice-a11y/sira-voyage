@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
@@ -101,6 +102,8 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      <Footer />
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Footer from "@/components/Footer";
 import { blogCategories } from "@/lib/blog-categories";
 import { faqItems } from "@/lib/faq-data";
 
@@ -10,30 +11,33 @@ export const metadata: Metadata = {
 
 export default function FaqPage() {
   return (
-    <main className="local-page">
-      <section className="local-hero">
-        <h1>Foire aux questions — Omra et Hajj</h1>
-        <p>
-          Retrouvez ici les réponses aux questions les plus fréquentes sur la préparation de votre Omra ou de votre
-          Hajj avec SIRA VOYAGES, classées par thème. Cliquez sur une question pour afficher la réponse.
-        </p>
-      </section>
+    <>
+      <main className="local-page">
+        <section className="local-hero">
+          <h1>Foire aux questions — Omra et Hajj</h1>
+          <p>
+            Retrouvez ici les réponses aux questions les plus fréquentes sur la préparation de votre Omra ou de votre
+            Hajj avec SIRA VOYAGES, classées par thème. Cliquez sur une question pour afficher la réponse.
+          </p>
+        </section>
 
-      {blogCategories.map((cat) => {
-        const items = faqItems.filter((f) => f.categorySlug === cat.slug);
-        if (items.length === 0) return null;
-        return (
-          <section className="local-faq" key={cat.slug}>
-            <h2>{cat.label}</h2>
-            {items.map((item) => (
-              <details className="faq-item" key={item.slug}>
-                <summary>{item.question}</summary>
-                <p>{item.answer}</p>
-              </details>
-            ))}
-          </section>
-        );
-      })}
-    </main>
+        {blogCategories.map((cat) => {
+          const items = faqItems.filter((f) => f.categorySlug === cat.slug);
+          if (items.length === 0) return null;
+          return (
+            <section className="local-faq" key={cat.slug}>
+              <h2>{cat.label}</h2>
+              {items.map((item) => (
+                <details className="faq-item" key={item.slug}>
+                  <summary>{item.question}</summary>
+                  <p>{item.answer}</p>
+                </details>
+              ))}
+            </section>
+          );
+        })}
+      </main>
+      <Footer />
+    </>
   );
 }
