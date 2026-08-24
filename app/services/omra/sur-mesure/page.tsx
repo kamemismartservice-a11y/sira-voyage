@@ -1,13 +1,28 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OmraSurMesureForm from "@/components/OmraSurMesureForm";
+import { prisma } from "@/lib/prisma";
+import { isPastDeparture, slugToMonthValue } from "@/lib/omra-dates";
 
 export const metadata = {
   title: "Omra à la demande — Sira Voyages | Formule personnalisée",
   description: "Vous ne trouvez pas la date qui vous convient ? Demandez une Omra sur mesure adaptée à vos dates, votre budget et vos besoins.",
 };
 
-export default function OmraSurMesure() {
+export default async function OmraSurMesure() {
+  const category = await prisma.serviceCategory.findUnique({
+    where: { slug: "omra" },
+    include: { items: true },
+  });
+
+  const sessionsSuggerees = (category?.items || [])
+    .filter((item) => !isPastDeparture(item.slug))
+    .map((item) => {
+      const monthValue = slugToMonthValue(item.slug);
+      return monthValue ? { title: item.title, monthValue } : null;
+    })
+    .filter((s): s is { title: string; monthValue: string } => s !== null);
+
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
       <Header />
@@ -22,7 +37,7 @@ export default function OmraSurMesure() {
 
       <section className="mx-auto max-w-2xl px-6 pb-16 sm:px-10">
         <div className="rounded-xl border border-[#0B3D2E]/10 bg-white p-6 sm:p-8">
-          <OmraSurMesureForm />
+          <OmraSurMesureForm sessionsSuggerees={sessionsSuggerees} />
         </div>
       </section>
 

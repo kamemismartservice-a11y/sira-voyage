@@ -13,6 +13,11 @@ const MONTHS: Record<string, number> = {
   decembre: 11,
 };
 
+const MONTHS_LABELS = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+];
+
 export function parseDepartureSlug(slug: string): { year: number; monthIndex: number } | null {
   const match = slug.match(/^([a-z]+)-([0-9]{4})$/);
   if (!match) return null;
@@ -44,4 +49,23 @@ export function compareDepartures(slugA: string, slugB: string): number {
   if (!a || !b) return 0;
   if (a.year !== b.year) return a.year - b.year;
   return a.monthIndex - b.monthIndex;
+}
+
+// Convertit un slug ("juillet-2026") en valeur pour <input type="month"> ("2026-07")
+export function slugToMonthValue(slug: string): string | null {
+  const parsed = parseDepartureSlug(slug);
+  if (!parsed) return null;
+  const month = String(parsed.monthIndex + 1).padStart(2, "0");
+  return `${parsed.year}-${month}`;
+}
+
+// Convertit une valeur <input type="month"> ("2026-07") en libellé lisible ("Juillet 2026")
+export function formatMonthValue(value: string): string {
+  const match = value.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return value;
+  const year = match[1];
+  const monthIndex = parseInt(match[2], 10) - 1;
+  const label = MONTHS_LABELS[monthIndex];
+  if (!label) return value;
+  return `${label} ${year}`;
 }
