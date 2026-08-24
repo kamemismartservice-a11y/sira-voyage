@@ -3,6 +3,16 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
+import { isPastDeparture, compareDepartures } from "@/lib/omra-dates";
+
+const METIER_LABELS: Record<string, { label: string; href: string }> = {
+  omra: { label: "Omra", href: "/services/omra" },
+  hajj: { label: "Hajj", href: "/services/hajj" },
+  billetterie: { label: "Billetterie", href: "/services/billetterie" },
+  visa: { label: "Visa", href: "/services/visa" },
+  navettes: { label: "Navette & Transferts", href: "/services/navettes" },
+  tourisme: { label: "Voyages en Côte d'Ivoire", href: "/services/tourisme" },
+};
 
 export default async function Home() {
   const categories = await prisma.serviceCategory.findMany({
@@ -27,6 +37,29 @@ export default async function Home() {
       };
     })
     .filter((d): d is NonNullable<typeof d> => d !== null);
+
+  const metierCards = sorted
+    .map((category) => {
+      const meta = METIER_LABELS[category.slug];
+      if (!meta) return null;
+      const image = category.items.find((i) => i.image)?.image || null;
+      return {
+        key: category.slug,
+        label: meta.label,
+        href: meta.href,
+        image,
+        icon: category.icon,
+      };
+    })
+    .filter((m): m is NonNullable<typeof m> => m !== null);
+
+  const allSessions = await prisma.omraSession.findMany({
+    include: { item: { include: { category: true } } },
+  });
+  const nextDepartures = allSessions
+    .filter((s) => !isPastDeparture(s.item.slug))
+    .sort((a, b) => compareDepartures(a.item.slug, b.item.slug))
+    .slice(0, 3);
 
   return (
     <main className="relative flex flex-col overflow-hidden bg-[#0B3D2E]">
@@ -81,6 +114,70 @@ export default async function Home() {
           </div>
         </div>
       </div>
+
+      {/* Accès directs par métier — avec photos */}
+      <section className="relative z-10 bg-[#F8F6F0] py-14 px-6 sm:px-10">
+        <p className="mb-2 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS SERVICES</p>
+        <h2 className="mb-8 text-center font-[family-name:var(--font-garamond)] text-2xl text-[#0B3D2E] sm:text-3xl">Que recherchez-vous ?</h2>
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {metierCards.map((m) => (
+            <Link
+              key={m.key}
+              href={m.href}
+              className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-[#0B3D2E]"
+            >
+              {m.image ? (
+                <Image src={m.image} alt={m.label} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-4xl">{m.icon}</div>
+              )}
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#041712] via-[#041712]/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-3">
+                <p className="text-sm font-medium text-[#F8F6F0] sm:text-base">{m.label}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Prochains départs */}
+      {nextDepartures.length > 0 && (
+        <section className="relative z-10 bg-[#F8F6F0] px-6 pb-14 sm:px-10">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold tracking-[0.35em] text-[#B7962F]">CALENDRIER</p>
+                <h2 className="font-[family-name:var(--font-garamond)] text-2xl text-[#0B3D2E] sm:text-3xl">Prochains départs</h2>
+              </div>
+              <Link href="/nos-departs" className="hidden text-sm font-medium text-[#B7962F] underline sm:inline-block">
+                Voir tous les départs →
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {nextDepartures.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/services/${s.item.category.slug}/${s.item.slug}`}
+                  className="overflow-hidden rounded-xl border border-[#0B3D2E]/10 bg-white transition-shadow hover:shadow-md"
+                >
+                  <div className="relative h-32 w-full">
+                    <Image src={s.image} alt={s.periode} fill className="object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm font-medium text-[#0B3D2E]">{s.item.title}</p>
+                    <p className="text-xs text-[#0B3D2E]/60">{s.periode} — {s.duree}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <Link href="/nos-departs" className="mt-4 block text-center text-sm font-medium text-[#B7962F] underline sm:hidden">
+              Voir tous les départs →
+            </Link>
+          </div>
+        </section>
+      )}
 
       <section className="relative z-10 bg-[#0B3D2E] py-16">
         <p className="mb-2 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS DESTINATIONS</p>
