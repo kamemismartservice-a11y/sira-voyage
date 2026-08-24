@@ -3,15 +3,37 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
-import { isPastDeparture, compareDepartures } from "@/lib/omra-dates";
+import { isPastDeparture, compareDepartures, parseDepartureSlug, formatMonthValue } from "@/lib/omra-dates";
 
 export const metadata = {
   title: "Nos départs — Sira Voyages | Omra, Hajj et voyages programmés",
   description: "Consultez les prochains départs Omra et Hajj de Sira Voyages : dates, durées et tarifs par formule.",
 };
 
-export default async function NosDeparts() {
-  const sessions = await prisma.omraSession.findMany({
+function parsePrice(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const digits = value.replace(/[^\d]/g, "");
+  if (digits.length === 0) return null;
+  const num = parseInt(digits, 10);
+  return isNaN(num) ? null : num;
+}
+
+function minPriceOfSession(s: { quad: string | null; triple: string; double: string; individuelle: string }): number | null {
+  const prices = [s.quad, s.triple, s.double, s.individuelle]
+    .map(parsePrice)
+    .filter((p): p is number => p !== null);
+  if (prices.length === 0) return null;
+  return Math.min(...prices);
+}
+
+export default async function NosDeparts({
+  searchParams,
+}: {
+  searchParams: Promise<{ categorie?: string; periode?: string; budgetMax?: string }>;
+}) {
+  const { categorie, periode, budgetMax } = await searchParams;
+
+  const allSessions = await prisma.omraSession.findMany({
     include: {
       item: {
         include: { category: true },
@@ -19,10 +41,45 @@ export default async function NosDeparts() {
     },
   });
 
-  // Ne conserver que les départs à venir, triés du plus proche au plus lointain
-  const upcomingSessions = sessions
-    .filter((s) => !isPastDeparture(s.item.slug))
-    .sort((a, b) => compareDepartures(a.item.slug, b.item.slug));
+  let upcomingSessions = allSessions.filter((s) => !isPastDeparture(s.item.slug));
+
+  // Catégories disponibles parmi les départs à venir (pour le filtre)
+  const categoriesDisponibles = Array.from(
+    new Map(upcomingSessions.map((s) => [s.item.category.slug, s.item.category.label])).entries()
+  ).map(([slug, label]) => ({ slug, label }));
+
+  if (categorie) {
+    upcomingSessions = upcomingSessions.filter((s) => s.item.category.slug === categorie);
+  }
+
+  if (periode) {
+    const filtreDate = periode.match(/^(\d{4})-(\d{2})$/);
+    if (filtreDate) {
+      const filtreYear = parseInt(filtreDate[1], 10);
+      const filtreMonth = parseInt(filtreDate[2], 10) - 1;
+      upcomingSessions = upcomingSessions.filter((s) => {
+        const parsed = parseDepartureSlug(s.item.slug);
+        if (!parsed) return true;
+        if (parsed.year > filtreYear) return true;
+        if (parsed.year === filtreYear && parsed.monthIndex >= filtreMonth) return true;
+        return false;
+      });
+    }
+  }
+
+  if (budgetMax) {
+    const budgetNum = parseInt(budgetMax, 10);
+    if (!isNaN(budgetNum)) {
+      upcomingSessions = upcomingSessions.filter((s) => {
+        const min = minPriceOfSession(s);
+        return min === null || min <= budgetNum;
+      });
+    }
+  }
+
+  upcomingSessions.sort((a, b) => compareDepartures(a.item.slug, b.item.slug));
+
+  const periodeLabel = periode ? formatMonthValue(periode) : "";
 
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
@@ -37,8 +94,74 @@ export default async function NosDeparts() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-16 sm:px-10">
+        {/* Filtres */}
+        <form action="/nos-departs" method="get" className="mb-10 flex flex-wrap items-end gap-3 rounded-xl border border-[#0B3D2E]/10 bg-white p-4 sm:p-5">
+          {categoriesDisponibles.length > 1 && (
+            <div>
+              <label htmlFor="categorie" className="block text-xs font-semibold tracking-wide text-[#0B3D2E]">Catégorie</label>
+              <select
+                id="categorie"
+                name="categorie"
+                defaultValue={categorie || ""}
+                className="mt-1 rounded-lg border border-[#0B3D2E]/15 px-3 py-2 text-sm text-[#0B3D2E] outline-none focus:border-[#B7962F]"
+              >
+                <option value="">Toutes</option>
+                {categoriesDisponibles.map((c) => (
+                  <option key={c.slug} value={c.slug}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="periode" className="block text-xs font-semibold tracking-wide text-[#0B3D2E]">À partir de</label>
+            <input
+              type="month"
+              id="periode"
+              name="periode"
+              defaultValue={periode || ""}
+              className="mt-1 rounded-lg border border-[#0B3D2E]/15 px-3 py-2 text-sm text-[#0B3D2E] outline-none focus:border-[#B7962F]"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="budgetMax" className="block text-xs font-semibold tracking-wide text-[#0B3D2E]">Budget max. par personne (FCFA)</label>
+            <input
+              type="number"
+              id="budgetMax"
+              name="budgetMax"
+              placeholder="Ex : 2000000"
+              defaultValue={budgetMax || ""}
+              className="mt-1 rounded-lg border border-[#0B3D2E]/15 px-3 py-2 text-sm text-[#0B3D2E] outline-none focus:border-[#B7962F]"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="h-[38px] rounded-full bg-[#0B3D2E] px-6 text-sm font-medium text-[#F8F6F0] transition-opacity hover:opacity-90"
+          >
+            Filtrer
+          </button>
+
+          {(categorie || periode || budgetMax) && (
+            <Link href="/nos-departs" className="text-sm text-[#B7962F] underline">
+              Réinitialiser
+            </Link>
+          )}
+        </form>
+
+        {(categorie || periode || budgetMax) && (
+          <p className="mb-6 text-sm text-[#0B3D2E]/60">
+            {upcomingSessions.length} résultat{upcomingSessions.length > 1 ? "s" : ""}
+            {periodeLabel && ` à partir de ${periodeLabel}`}
+            {budgetMax && ` — budget max ${parseInt(budgetMax, 10).toLocaleString("fr-FR")} FCFA`}
+          </p>
+        )}
+
         {upcomingSessions.length === 0 ? (
-          <p className="text-center text-sm text-[#0B3D2E]/60">Aucun départ à venir pour le moment. Contactez-nous pour connaître les prochaines disponibilités.</p>
+          <p className="text-center text-sm text-[#0B3D2E]/60">
+            Aucun départ ne correspond à ces critères pour le moment. Contactez-nous pour connaître les prochaines disponibilités.
+          </p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {upcomingSessions.map((s) => (
@@ -79,6 +202,12 @@ export default async function NosDeparts() {
             Le Hajj 2027 est en préparation — départ prévu du 14 au 19 mai 2027, dates et tarifs détaillés communiqués prochainement.
           </p>
           <Link href="/services/hajj" className="mt-3 inline-block text-sm font-medium text-[#B7962F] underline">En savoir plus sur le Hajj →</Link>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link href="/services/omra/sur-mesure" className="text-sm font-medium text-[#B7962F] underline">
+            Aucune date ne vous convient ? Demandez une Omra sur mesure →
+          </Link>
         </div>
       </section>
 
