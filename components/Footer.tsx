@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -6,7 +7,10 @@ export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-block">
-        <h3>SIRA VOYAGES</h3>
+        <div className="mb-3 flex items-center gap-2">
+          <Image src="/images/logo-sira-voyage.png" alt="Sira Voyage" width={40} height={40} className="rounded" />
+          <h3 style={{ marginBottom: 0 }}>SIRA VOYAGES</h3>
+        </div>
         <p>Votre agence de voyages à Abidjan pour la Omra, le Hajj, la billetterie, l&apos;assistance visa, les navettes, les transferts, les circuits en Côte d&apos;Ivoire et les voyages à l&apos;international.</p>
         <Link href="/reserver" className="footer-cta">Réserver</Link>
       </div>
@@ -18,8 +22,8 @@ export default function Footer() {
           <li><Link href="/services/hajj">Hajj</Link></li>
           <li><Link href="/services/billetterie">Billetterie</Link></li>
           <li><Link href="/services/visa">Assistance visa</Link></li>
-          <li><Link href="/services/navette">Navette &amp; transferts</Link></li>
-          <li><Link href="/services/tourisme-ci">Découvrir la Côte d&apos;Ivoire</Link></li>
+          <li><Link href="/services/navettes">Navette &amp; transferts</Link></li>
+          <li><Link href="/services/tourisme">Découvrir la Côte d&apos;Ivoire</Link></li>
         </ul>
       </div>
 

@@ -1,11 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Header() {
   return (
     <header className="relative z-10 flex w-full flex-col gap-3 bg-[#0B3D2E] px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 sm:px-10">
       <div className="flex items-center justify-between gap-4">
-        <Link href="/" className="font-[family-name:var(--font-garamond)] text-xl tracking-wide text-[#F8F6F0] sm:text-2xl">
-          Sira Voyage
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/images/logo-sira-voyage.png" alt="Sira Voyage" width={36} height={36} className="rounded" />
+          <span className="font-[family-name:var(--font-garamond)] text-xl tracking-wide text-[#F8F6F0] sm:text-2xl">
+            Sira Voyage
+          </span>
         </Link>
         <form action="/recherche" method="get" className="flex sm:hidden">
           <input

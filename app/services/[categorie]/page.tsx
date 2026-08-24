@@ -74,6 +74,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
     return aPast ? 1 : -1;
   });
 
+  const isOmra = category.slug === "omra";
+
   return (
     <main className="min-h-[100svh] bg-[#F8F6F0]">
       <div className="relative flex min-h-[35svh] flex-col items-center justify-center overflow-hidden bg-[#0B3D2E] px-6 py-10 text-center sm:px-10" style={{ backgroundImage: "radial-gradient(120% 90% at 50% 0%, rgba(183,150,47,0.18) 0%, rgba(11,61,46,0) 60%)" }}>
@@ -85,6 +87,17 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       </div>
 
       <section className="border-t border-[#0B3D2E]/5 px-6 py-14 sm:px-10">
+        {isOmra && (
+          <div className="mx-auto mb-10 max-w-4xl rounded-xl border border-[#B7962F]/30 bg-[#B7962F]/10 p-5 text-center">
+            <p className="text-sm text-[#0B3D2E]">
+              Aucune de ces sessions ne correspond à vos disponibilités ?
+            </p>
+            <Link href="/services/omra/sur-mesure" className="mt-2 inline-block text-sm font-semibold text-[#B7962F] underline">
+              Demandez une Omra sur mesure →
+            </Link>
+          </div>
+        )}
+
         {sortedItems.length === 0 ? (
           <p className="text-center text-sm text-[#0B3D2E]/60">Aucune offre disponible pour le moment dans cette catégorie.</p>
         ) : (
