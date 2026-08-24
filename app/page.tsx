@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 import { isPastDeparture, compareDepartures } from "@/lib/omra-dates";
+import { faqItems } from "@/lib/faq-data";
 
 const METIER_LABELS: Record<string, { label: string; href: string }> = {
   omra: { label: "Omra", href: "/services/omra" },
@@ -23,21 +24,6 @@ export default async function Home() {
   const order = ["omra", "hajj", "billetterie", "visa", "navettes", "tourisme"];
   const sorted = [...categories].sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug));
 
-  const highlights = sorted
-    .map((category) => {
-      const item = category.items.find((i) => i.image) || category.items[0];
-      if (!item) return null;
-      return {
-        key: item.id,
-        href: "/services/" + category.slug + "/" + item.slug,
-        image: item.image,
-        icon: item.icon,
-        label: item.title,
-        sub: item.subtitle || category.label,
-      };
-    })
-    .filter((d): d is NonNullable<typeof d> => d !== null);
-
   const metierCards = sorted
     .map((category) => {
       const meta = METIER_LABELS[category.slug];
@@ -53,6 +39,32 @@ export default async function Home() {
     })
     .filter((m): m is NonNullable<typeof m> => m !== null);
 
+  // "Nos destinations" : lieux saints (Omra/Hajj) + circuits Côte d'Ivoire, contenu distinct du grid ci-dessus
+  const omraCategory = sorted.find((c) => c.slug === "omra");
+  const omraHighlight = omraCategory?.items.find((i) => i.image);
+
+  const tourismeCategory = sorted.find((c) => c.slug === "tourisme");
+  const tourismeItems = tourismeCategory?.items.filter((i) => i.image) || [];
+
+  const destinations = [
+    omraHighlight
+      ? {
+          key: "lieux-saints",
+          href: "/services/omra",
+          image: omraHighlight.image,
+          label: "Lieux saints",
+          sub: "Omra & Hajj",
+        }
+      : null,
+    ...tourismeItems.map((item) => ({
+      key: item.id,
+      href: `/services/tourisme/${item.slug}`,
+      image: item.image,
+      label: item.title,
+      sub: item.subtitle || "Côte d'Ivoire",
+    })),
+  ].filter((d): d is NonNullable<typeof d> => d !== null);
+
   const allSessions = await prisma.omraSession.findMany({
     include: { item: { include: { category: true } } },
   });
@@ -60,6 +72,14 @@ export default async function Home() {
     .filter((s) => !isPastDeparture(s.item.slug))
     .sort((a, b) => compareDepartures(a.item.slug, b.item.slug))
     .slice(0, 3);
+
+  const latestPosts = await prisma.blogPost.findMany({
+    where: { published: true },
+    orderBy: { publishedAt: "desc" },
+    take: 3,
+  });
+
+  const highlightedFaq = faqItems.slice(0, 4);
 
   return (
     <main className="relative flex flex-col overflow-hidden bg-[#0B3D2E]">
@@ -179,31 +199,96 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="relative z-10 bg-[#0B3D2E] py-16">
-        <p className="mb-2 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS DESTINATIONS</p>
-        <p className="mb-8 text-center text-xs text-[#F8F6F0]/50">Faites glisser pour découvrir tous nos services →</p>
+      {/* Nos destinations — lieux saints + circuits Côte d'Ivoire */}
+      {destinations.length > 0 && (
+        <section className="relative z-10 bg-[#0B3D2E] py-16">
+          <p className="mb-2 text-center text-xs font-semibold tracking-[0.35em] text-[#B7962F]">NOS DESTINATIONS</p>
+          <h2 className="mb-8 text-center font-[family-name:var(--font-garamond)] text-2xl text-[#F8F6F0] sm:text-3xl">Où souhaitez-vous aller ?</h2>
 
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 sm:gap-6 sm:px-10 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
-          {highlights.map((d) => (
-            <Link
-              key={d.key}
-              href={d.href}
-              className="group relative aspect-[3/4] w-[68vw] flex-none snap-start overflow-hidden rounded-2xl sm:w-[280px]"
-            >
-              {d.image ? (
-                <Image src={d.image} alt={d.label} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[#0B3D2E] text-6xl">{d.icon}</div>
-              )}
-              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#041712] via-transparent to-transparent opacity-90" />
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="font-[family-name:var(--font-garamond)] text-lg text-[#F8F6F0] sm:text-xl">{d.label}</p>
-                <p className="text-xs text-[#F8F6F0]/70">{d.sub}</p>
+          <div className="flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto px-6 pb-4 sm:gap-6 sm:px-10 lg:justify-center [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
+            {destinations.map((d) => (
+              <Link
+                key={d.key}
+                href={d.href}
+                className="group relative aspect-[3/4] w-[68vw] flex-none snap-start overflow-hidden rounded-2xl sm:w-[280px]"
+              >
+                {d.image ? (
+                  <Image src={d.image} alt={d.label} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-[#0B3D2E] text-6xl">🌍</div>
+                )}
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#041712] via-transparent to-transparent opacity-90" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <p className="font-[family-name:var(--font-garamond)] text-lg text-[#F8F6F0] sm:text-xl">{d.label}</p>
+                  <p className="text-xs text-[#F8F6F0]/70">{d.sub}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Derniers articles du blog */}
+      {latestPosts.length > 0 && (
+        <section className="relative z-10 bg-[#F8F6F0] px-6 py-14 sm:px-10">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold tracking-[0.35em] text-[#B7962F]">ACTUALITÉS</p>
+                <h2 className="font-[family-name:var(--font-garamond)] text-2xl text-[#0B3D2E] sm:text-3xl">Derniers articles</h2>
               </div>
+              <Link href="/blog" className="hidden text-sm font-medium text-[#B7962F] underline sm:inline-block">
+                Voir tout le blog →
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {latestPosts.map((post) => (
+                <Link key={post.id} href={`/blog/${post.slug}`} className="overflow-hidden rounded-xl border border-[#0B3D2E]/10 bg-white transition-shadow hover:shadow-md">
+                  {post.coverImage && (
+                    <div className="relative h-36 w-full">
+                      <Image src={post.coverImage} alt={post.title} fill className="object-cover" />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <p className="text-sm font-medium text-[#0B3D2E]">{post.title}</p>
+                    {post.excerpt && <p className="mt-1 text-xs text-[#0B3D2E]/60 line-clamp-2">{post.excerpt}</p>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <Link href="/blog" className="mt-4 block text-center text-sm font-medium text-[#B7962F] underline sm:hidden">
+              Voir tout le blog →
             </Link>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
+
+      {/* Questions fréquentes */}
+      {highlightedFaq.length > 0 && (
+        <section className="relative z-10 bg-white px-6 py-14 sm:px-10">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-6 text-center">
+              <p className="text-xs font-semibold tracking-[0.35em] text-[#B7962F]">QUESTIONS FRÉQUENTES</p>
+              <h2 className="font-[family-name:var(--font-garamond)] text-2xl text-[#0B3D2E] sm:text-3xl">Vous vous demandez peut-être...</h2>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              {highlightedFaq.map((f) => (
+                <details key={f.slug} className="border-b border-[#0B3D2E]/10 py-3">
+                  <summary className="cursor-pointer text-sm font-medium text-[#0B3D2E]">{f.question}</summary>
+                  <p className="mt-2 text-sm text-[#0B3D2E]/70">{f.answer}</p>
+                </details>
+              ))}
+            </div>
+
+            <div className="mt-6 text-center">
+              <Link href="/faq" className="text-sm font-medium text-[#B7962F] underline">Voir toute la FAQ →</Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </main>
