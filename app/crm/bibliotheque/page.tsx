@@ -11,6 +11,8 @@ const BORDER = "#E4DFCF";
 const SERIF = "'EB Garamond', Georgia, 'Times New Roman', serif";
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif";
 
+const PAGE_SIZE = 100;
+
 const STATUTS = [
   { value: "a_ecrire", label: "À écrire" },
   { value: "en_relecture", label: "En relecture" },
@@ -73,6 +75,11 @@ export default async function BibliothequePage({
   const statut = params.statut || "";
   const type = params.type || "";
 
+  // --- Pagination : page courante (>=1), calculée à partir de ?page=N ---
+  const pageParam = parseInt(params.page || "1", 10);
+  const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const skip = (currentPage - 1) * PAGE_SIZE;
+
   const where: any = {};
   if (bibliotheque) where.bibliotheque = bibliotheque;
   if (statut) where.statut = statut;
@@ -89,7 +96,8 @@ export default async function BibliothequePage({
     prisma.ficheMarketing.findMany({
       where,
       orderBy: { idFiche: "asc" },
-      take: 100,
+      skip,
+      take: PAGE_SIZE,
     }),
     prisma.ficheMarketing.findMany({
       select: { bibliotheque: true },
@@ -109,6 +117,32 @@ export default async function BibliothequePage({
     countByStatut[s.statut] = s._count;
   }
   const totalFiches = statutCounts.reduce((acc, s) => acc + s._count, 0);
+
+  // --- Pagination : total de pages + construction des liens Précédent/Suivant ---
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const firstIndex = total === 0 ? 0 : skip + 1;
+  const lastIndex = Math.min(skip + fiches.length, total);
+
+  function buildPageHref(targetPage: number) {
+    const sp = new URLSearchParams();
+    if (q) sp.set("q", q);
+    if (bibliotheque) sp.set("bibliotheque", bibliotheque);
+    if (statut) sp.set("statut", statut);
+    if (type) sp.set("type", type);
+    sp.set("page", String(targetPage));
+    return `?${sp.toString()}`;
+  }
+
+  const navBtnBase: React.CSSProperties = {
+    display: "inline-block",
+    padding: "0.55rem 1.1rem",
+    borderRadius: 8,
+    fontSize: "0.85rem",
+    fontWeight: 600,
+    fontFamily: SANS,
+    textDecoration: "none",
+  };
 
   return (
     <div style={{ background: OFFWHITE, minHeight: "100vh", fontFamily: SANS }}>
@@ -226,7 +260,7 @@ export default async function BibliothequePage({
         {/* Liste des fiches */}
         <section style={card}>
           <h2 style={{ fontFamily: SERIF, color: EMERALD, marginTop: 0 }}>
-            Résultats ({total}{total > 100 ? " — 100 premières affichées, affinez la recherche" : ""})
+            Résultats ({total > 0 ? `${firstIndex}–${lastIndex} sur ${total}` : 0})
           </h2>
           <div style={{ overflowX: "auto", borderRadius: 10, border: `1px solid ${BORDER}` }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
@@ -335,6 +369,49 @@ export default async function BibliothequePage({
               </tbody>
             </table>
           </div>
+
+          {/* Pagination : Précédent / page X sur Y / Suivant */}
+          {totalPages > 1 && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "1rem",
+                marginTop: "1.25rem",
+              }}
+            >
+              {safePage > 1 ? (
+                <a
+                  href={buildPageHref(safePage - 1)}
+                  style={{ ...navBtnBase, background: WHITE, color: EMERALD, border: `1px solid ${BORDER}` }}
+                >
+                  ← Précédent
+                </a>
+              ) : (
+                <span style={{ ...navBtnBase, background: OFFWHITE, color: MUTED, border: `1px solid ${BORDER}` }}>
+                  ← Précédent
+                </span>
+              )}
+
+              <span style={{ fontFamily: SANS, fontSize: "0.85rem", color: MUTED }}>
+                Page {safePage} sur {totalPages}
+              </span>
+
+              {safePage < totalPages ? (
+                <a
+                  href={buildPageHref(safePage + 1)}
+                  style={{ ...navBtnBase, background: EMERALD, color: WHITE }}
+                >
+                  Suivant →
+                </a>
+              ) : (
+                <span style={{ ...navBtnBase, background: OFFWHITE, color: MUTED, border: `1px solid ${BORDER}` }}>
+                  Suivant →
+                </span>
+              )}
+            </div>
+          )}
         </section>
       </div>
     </div>
