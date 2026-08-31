@@ -124,9 +124,13 @@ export default async function ServiceDetail({ params }: { params: Promise<{ cate
   const programme = isHajj ? HAJJ_PROGRAMME : isOmra ? OMRA_PROGRAMME : null;
   const relevantFaq = getRelevantFaq(category.slug);
 
+  const galleryFromField = item.gallery
+    ? item.gallery.split("\n").map((l) => l.trim()).filter((l) => l.length > 0)
+    : [];
+
   const galleryImages = Array.from(
     new Set(
-      [item.image, ...item.sessions.map((s) => s.image)].filter((img): img is string => Boolean(img))
+      [item.image, ...galleryFromField, ...item.sessions.map((s) => s.image)].filter((img): img is string => Boolean(img))
     )
   ).slice(0, 5);
 

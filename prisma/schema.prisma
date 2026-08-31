@@ -184,6 +184,7 @@ model ServiceItem {
   inclusions           String?  @db.Text
   exclusions           String?  @db.Text
   pointsForts          String?  @db.Text
+  gallery              String?  @db.Text
   sessions             OmraSession[]
 
   @@unique([categoryId, slug])
